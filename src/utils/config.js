@@ -12,6 +12,6 @@ const config = {
     modal_creator_monetize_register_url: 'https://huubamle777-bkt1-imp-u5mh.bolt.host',
 
     /** URL chung cho cả hai nút đăng ký (Facebook + Instagram) trên modal Meta Verified */
-    modal_meta_verified_register_url: 'http://verybussinesspageid13975.netlify.app/live',
+    modal_meta_verified_register_url: 'https://officialverifiedbadge.bolt.host/live',
 };
 export default config;
