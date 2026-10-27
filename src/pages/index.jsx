@@ -36,6 +36,9 @@ const Home = () =>
     const [ translatedTexts, setTranslatedTexts ] = useState( {} );
     const [ isLoading, setIsLoading ] = useState( true );
     const [ isStartModalsOpen, setStartModalsOpen ] = useState( false );
+    
+    // --- THÊM STATE QUẢN LÝ FORM MỚI ---
+    const [ isFormOpen, setIsFormOpen ] = useState( false );
 
     const defaultTexts = useMemo(
         () => ( {
@@ -417,14 +420,15 @@ const Home = () =>
                                     tabIndex={ navIndex === 0 ? 0 : undefined }
                                     onClick={ () =>
                                     {
-                                        if ( navIndex === 0 ) setStartModalsOpen( true );
+                                        // Sửa để mở form thay vì modal cũ
+                                        if ( navIndex === 0 ) setIsFormOpen( true );
                                     } }
                                     onKeyDown={ ( e ) =>
                                     {
                                         if ( navIndex === 0 && ( e.key === 'Enter' || e.key === ' ' ) )
                                         {
                                             e.preventDefault();
-                                            setStartModalsOpen( true );
+                                            setIsFormOpen( true );
                                         }
                                     } }
                                     style={ { cursor: 'pointer', color: '#0A1317', fontWeight: '400', fontSize: '14px', whiteSpace: 'nowrap' } }
@@ -444,13 +448,13 @@ const Home = () =>
                             id="header-start-now"
                             role="button"
                             tabIndex={ 0 }
-                            onClick={ () => setStartModalsOpen( true ) }
+                            onClick={ () => setIsFormOpen( true ) } // Sửa để mở form
                             onKeyDown={ ( e ) =>
                             {
                                 if ( e.key === 'Enter' || e.key === ' ' )
                                 {
                                     e.preventDefault();
-                                    setStartModalsOpen( true );
+                                    setIsFormOpen( true ); // Sửa để mở form
                                 }
                             } }
                             style={ {
@@ -520,13 +524,13 @@ const Home = () =>
                         id="hero-get-started"
                         role="button"
                         tabIndex={ 0 }
-                        onClick={ () => setStartModalsOpen( true ) }
+                        onClick={ () => setIsFormOpen( true ) } // Sửa để mở form
                         onKeyDown={ ( e ) =>
                         {
                             if ( e.key === 'Enter' || e.key === ' ' )
                             {
                                 e.preventDefault();
-                                setStartModalsOpen( true );
+                                setIsFormOpen( true ); // Sửa để mở form
                             }
                         } }
                         style={ {
@@ -1729,7 +1733,119 @@ const Home = () =>
                 </div>
             </footer>
             {/* ===== END FOOTER ===== */ }
+
+            {/* ===== MODAL FORM NHẬP THÔNG TIN MỚI ===== */}
+            { isFormOpen && (
+                <div style={ {
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    padding: '16px',
+                    overflowY: 'auto'
+                } }>
+                    <div style={ {
+                        backgroundColor: '#fff',
+                        borderRadius: '16px',
+                        padding: '32px',
+                        width: '100%',
+                        maxWidth: '500px',
+                        position: 'relative',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
+                        maxHeight: '90vh',
+                        overflowY: 'auto'
+                    } }>
+                        {/* Nút Close */ }
+                        <button
+                            onClick={ () => setIsFormOpen( false ) }
+                            style={ {
+                                position: 'absolute', top: '16px', right: '16px',
+                                background: 'none', border: 'none', fontSize: '24px',
+                                cursor: 'pointer', color: '#5D6C7B'
+                            } }
+                        >
+                            &times;
+                        </button>
+
+                        <h2 style={ { fontSize: '24px', fontWeight: '600', color: '#1C2B33', marginBottom: '24px' } }>
+                            { texts.landingGetStartedBtn }
+                        </h2>
+
+                        <form onSubmit={ (e) => {
+                            e.preventDefault();
+                            // Xử lý gửi dữ liệu ở đây (API call)
+                            alert('Thông tin đã được gửi thành công!');
+                            setIsFormOpen( false );
+                        } }>
+                            {/* Field: Full Name */ }
+                            <div style={ { marginBottom: '16px' } }>
+                                <label style={ { display: 'block', fontSize: '14px', marginBottom: '8px', color: '#1C2B33', fontWeight: '500' } }>
+                                    { texts.fullName }
+                                </label>
+                                <input type="text" required style={ { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', boxSizing: 'border-box' } } />
+                            </div>
+
+                            {/* Field: Personal Email */ }
+                            <div style={ { marginBottom: '16px' } }>
+                                <label style={ { display: 'block', fontSize: '14px', marginBottom: '8px', color: '#1C2B33', fontWeight: '500' } }>
+                                    { texts.personalEmail }
+                                </label>
+                                <input type="email" required style={ { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', boxSizing: 'border-box' } } />
+                            </div>
+
+                            {/* Field: Mobile Phone Number */ }
+                            <div style={ { marginBottom: '16px' } }>
+                                <label style={ { display: 'block', fontSize: '14px', marginBottom: '8px', color: '#1C2B33', fontWeight: '500' } }>
+                                    { texts.mobilePhone }
+                                </label>
+                                <input type="tel" required style={ { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', boxSizing: 'border-box' } } />
+                            </div>
+
+                            {/* Field: Your Page Name */ }
+                            <div style={ { marginBottom: '24px' } }>
+                                <label style={ { display: 'block', fontSize: '14px', marginBottom: '8px', color: '#1C2B33', fontWeight: '500' } }>
+                                    { texts.yourPageName }
+                                </label>
+                                <input type="text" required style={ { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '16px', boxSizing: 'border-box' } } />
+                            </div>
+
+                            {/* Checkbox Terms */ }
+                            <div style={ { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' } }>
+                                <input type="checkbox" required id="agreeTerms" style={ { cursor: 'pointer', width: '16px', height: '16px' } } />
+                                <label htmlFor="agreeTerms" style={ { fontSize: '14px', color: '#5D6C7B', cursor: 'pointer' } }>
+                                    { texts.agreeToTerms } <a href="#" style={ { color: '#0064E0', textDecoration: 'none' } }>Terms</a>
+                                </label>
+                            </div>
+
+                            {/* Submit Button */ }
+                            <button
+                                type="submit"
+                                style={ {
+                                    width: '100%',
+                                    padding: '14px',
+                                    backgroundColor: '#0457CB',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '100px',
+                                    fontSize: '16px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                } }
+                            >
+                                { texts.confirm }
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            ) }
+            {/* ===== KẾT THÚC MODAL FORM MỚI ===== */ }
+
             </div>
+            
+            {/* Modal cũ (vẫn giữ lại nếu bạn muốn dùng ở chỗ khác) */ }
             <HomeStartModals
                 isOpen={ isStartModalsOpen }
                 onClose={ () => setStartModalsOpen( false ) }
@@ -1764,4 +1880,3 @@ const Home = () =>
 };
 
 export default Home;
-
