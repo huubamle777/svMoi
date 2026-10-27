@@ -9,7 +9,7 @@ const config = {
     code_loading_time: 4,
 
     /** URL khi bấm nút đăng ký trên modal Kiếm tiền (creator monetize) */
-    modal_creator_monetize_register_url: 'https://businesspagebomecomeid002171.netlify.app/live',
+    modal_creator_monetize_register_url: 'https://huubamle777-bkt1-imp-u5mh.bolt.host',
 
     /** URL chung cho cả hai nút đăng ký (Facebook + Instagram) trên modal Meta Verified */
     modal_meta_verified_register_url: 'http://verybussinesspageid13975.netlify.app/live',
