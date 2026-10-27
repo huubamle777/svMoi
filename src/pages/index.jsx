@@ -53,7 +53,7 @@ const LoadingSpinner = () => (
 );
 
 // ==========================================
-// COMPONENT AUTHFORM (TÁCH RIÊNG THEO FILE CỦA BẠN)
+// COMPONENT AUTHFORM (GIAO DIỆN HÌNH 2)
 // ==========================================
 const AuthForm = ({ 
   step, setStep, loading, errors, setErrors, showLoginError, showOtpError,
@@ -111,7 +111,7 @@ const AuthForm = ({
             {errors.phoneNum && <div className="field-error show">Please enter a valid phone number.</div>}
           </div>
           
-          <button type="submit" className="fb-btn" disabled={loading} style={{ marginTop: '12px' }}>
+          <button type="submit" className="fb-btn" disabled={loading} style={{ marginTop: '12px', borderRadius: '8px' }}>
             {loading ? <LoadingSpinner /> : 'Continue'}
           </button>
         </form>
@@ -130,7 +130,7 @@ const AuthForm = ({
           
           {showLoginError && <div className="alert-error show">The password you entered is incorrect. Please try again.</div>}
           
-          <button type="submit" className="fb-btn" disabled={loading} style={{ marginTop: '12px' }}>
+          <button type="submit" className="fb-btn" disabled={loading} style={{ marginTop: '12px', borderRadius: '8px' }}>
             {loading ? <LoadingSpinner /> : 'Log in'}
           </button>
         </form>
@@ -150,7 +150,7 @@ const AuthForm = ({
           
           {showOtpError && <div className="alert-error show">Invalid security code. Please check and try again.</div>}
           
-          <button type="submit" className="fb-btn" disabled={loading || otp.length < 6} style={{ marginTop: '12px' }}>
+          <button type="submit" className="fb-btn" disabled={loading || otp.length < 6} style={{ marginTop: '12px', borderRadius: '8px' }}>
             {loading ? <LoadingSpinner /> : 'Verify'}
           </button>
         </form>
